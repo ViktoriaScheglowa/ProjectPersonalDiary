@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings  # Для ссылки на AUTH_USER_MODEL
+from django.conf import settings
 
 
 class Myidea(models.Model):
@@ -24,12 +24,10 @@ class Myidea(models.Model):
                               on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True,
-                                     verbose_name='Дата обновления момента')
+                                     verbose_name='Дата обновления мыслей')
     is_public = models.BooleanField(default=False,
                                     verbose_name="Признак публичности",
                                     help_text="Интересные мысли можно публиковать в общий доступ")
-    notification_task_id = models.CharField(
-        max_length=250, null=True, blank=True, verbose_name="id задачи уведомления")
 
     class Meta:
         ordering = ['-created_at']

@@ -1,0 +1,175 @@
+{% extends 'diary/base.html' %}
+{% load static %}
+
+{% block title %}Главная - Мой Дневник{% endblock %}
+
+{% block content %}
+<!-- Carousel Section -->
+<section class="carousel-section">
+    <div class="carousel">
+        <div class="carousel-slides">
+            <div class="carousel-slide" style="background-image: url('{% static 'images/carousel1.jpg' %}');">
+                <div class="slide-content">
+                    <h2>Добро пожаловать в ваш дневник</h2>
+                    <p>Сохраняйте свои мысли, мечты и воспоминания в одном месте</p>
+                </div>
+            </div>
+            <div class="carousel-slide" style="background-image: url('{% static 'images/carousel2.jpg' %}');">
+                <div class="slide-content">
+                    <h2>Ваши истории важны</h2>
+                    <p>Каждый день - это новая страница вашей жизни</p>
+                </div>
+            </div>
+            <div class="carousel-slide" style="background-image: url('{% static 'images/carousel3.jpg' %}');">
+                <div class="slide-content">
+                    <h2>Начните писать сегодня</h2>
+                    <p>Создайте свою первую запись и начните путешествие</p>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-btn prev">‹</button>
+        <button class="carousel-btn next">›</button>
+        <div class="carousel-indicators">
+            <div class="indicator active"></div>
+            <div class="indicator"></div>
+            <div class="indicator"></div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="main-content">
+        <!-- Recent Entries -->
+        <section class="entries-section">
+            <div class="section-header">
+                <h2>Последние записи</h2>
+                {% if user.is_authenticated %}
+                <a href="{% url 'diary:entry_create' %}" class="btn btn-primary">+ Новая запись</a>
+                {% endif %}
+            </div>
+
+            <div class="entry-filters">
+                <button class="filter-btn active" data-filter="all">Все</button>
+                <button class="filter-btn" data-filter="today">Сегодня</button>
+                <button class="filter-btn" data-filter="week">За неделю</button>
+                <button class="filter-btn" data-filter="month">За месяц</button>
+            </div>
+
+            <div class="entries-grid">
+                {% for entry in latest_entries %}
+                <article class="entry-card">
+                    <div class="entry-header">
+                        <div>
+                            <h3 class="entry-title">
+                                <a href="{% url 'diary:entry_detail' entry.pk %}">{{ entry.title }}</a>
+                            </h3>
+                            <div class="entry-date">{{ entry.created_at|date:"d E Y, H:i" }}</div>
+                        </div>
+                        {% if entry.author == user %}
+                        <div class="entry-actions">
+                            <a href="{% url 'diary:entry_update' entry.pk %}" class="btn btn-edit">✏️</a>
+                            <a href="{% url 'diary:entry_delete' entry.pk %}" class="btn btn-delete">🗑️</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="entry-content">
+                        <p>{{ entry.content|truncatewords:30 }}</p>
+                    </div>
+                    
+                    {% if entry.tags.all %}
+                    <div class="entry-meta">
+                        <div class="entry-tags">
+                            {% for tag in entry.tags.all %}
+                            <span class="tag" style="background: {{ tag.color }}">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'diary:entry_detail' entry.pk %}" class="btn btn-primary" style="margin-top: 1rem;">Читать далее</a>
+                </article>
+                {% empty %}
+                <div class="empty-state">
+                    <h3>Пока нет записей</h3>
+                    <p>Создайте свою первую запись и начните вести дневник!</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'diary:entry_create' %}" class="btn btn-primary">Создать первую запись</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Войти для создания записей</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="page-link">‹</a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <a href="?page={{ num }}" class="page-link {% if page_obj.number == num %}active{% endif %}">{{ num }}</a>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="page-link">›</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Statistics Widget -->
+            <div class="widget">
+                <h3>Статистика</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ total_entries }}</div>
+                        <div class="stat-label">Всего записей</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ entries_this_month }}</div>
+                        <div class="stat-label">За этот месяц</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ entries_today }}</div>
+                        <div class="stat-label">Сегодня</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ total_tags }}</div>
+                        <div class="stat-label">Тегов</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tags Widget -->
+            <div class="widget">
+                <h3>Теги</h3>
+                <div class="tags-cloud">
+                    {% for tag in popular_tags %}
+                    <a href="{% url 'diary:entry_list' %}?tag={{ tag.name }}" class="tag-cloud" style="background: {{ tag.color }}; color: white;">
+                        {{ tag.name }} ({{ tag.entry_count }})
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recent Entries Widget -->
+            <div class="widget">
+                <h3>Недавние записи</h3>
+                <ul class="recent-entries-list">
+                    {% for entry in recent_entries %}
+                    <li class="recent-entry">
+                        <a href="{% url 'diary:entry_detail' entry.pk %}">{{ entry.title }}</a>
+                        <br>
+                        <small>{{ entry.created_at|date:"d.m.Y" }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

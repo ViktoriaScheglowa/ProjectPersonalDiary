@@ -53,7 +53,7 @@ class Goal(models.Model):
     action = models.CharField(
         max_length=50,
         verbose_name="Действие",
-        help_text="Действие, которое представляет собой привычка",
+        help_text="Действие, которое представляет собой цель",
     )
     is_progress = models.BooleanField(
         verbose_name="Признак достижения",

@@ -39,8 +39,6 @@ class Moment(models.Model):
     is_public = models.BooleanField(default=False,
                                     verbose_name="Признак публичности",
                                     help_text="Интересные моменты можно публиковать в общий доступ")
-    notification_task_id = models.CharField(
-        max_length=250, null=True, blank=True, verbose_name="id задачи уведомления")
 
     class Meta:
         ordering = ['-created_at']

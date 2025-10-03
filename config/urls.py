@@ -1,3 +1,7 @@
+from django.views.generic import TemplateView
+
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
@@ -20,18 +24,22 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("user/", include("user.urls", namespace="user")),
-    path("habits/", include("habits.urls", namespace="habits")),
-    path("idea/", include("idea.urls", namespace="idea")),
-    path("moments/", include("moments.urls", namespace="moments")),
-    path("goal/", include("goal.urls", namespace="goal")),
-    path("login/", CustomTokenObtainPairView.as_view(), name="login"),
-    path("token/refresh/", CustomTokenObtainPairView.as_view(), name="token_refresh"),
+    path('', TemplateView.as_view(template_name='main.html'), name='main'),
+    path('admin/', admin.site.urls),
+    path('user/', include('user.urls', namespace='user')),
+    path('habits/', include('habits.urls', namespace='habits')),
+    path('idea/', include('idea.urls', namespace='idea')),
+    path('moments/', include('moments.urls', namespace='moments')),
+    path('goal/', include('goal.urls', namespace='goal')),
+    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
+    path('token/refresh/', CustomTokenObtainPairView.as_view(), name='token_refresh'),
     path(
-        "swagger/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
+        'swagger/',
+        schema_view.with_ui('swagger', cache_timeout=0),
+        name='schema-swagger-ui',
     ),
-    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
-]
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

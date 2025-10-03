@@ -1,0 +1,29 @@
+<div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    📖 Мой Дневник
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="{% url 'diary:index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Главная</a></li>
+                        <li><a href="{% url 'diary:entry_list' %}" class="{% if request.resolver_match.url_name == 'entry_list' %}active{% endif %}">Все записи</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'diary:entry_create' %}" class="{% if request.resolver_match.url_name == 'entry_create' %}active{% endif %}">Новая запись</a></li>
+                        {% endif %}
+                        <li><a href="#">О проекте</a></li>
+                    </ul>
+                </nav>
+                <div class="user-info">
+                    {% if user.is_authenticated %}
+                        <div class="avatar">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span>Привет, {{ user.username }}!</span>
+                        <a href="{% url 'logout' %}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">Выйти</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">Войти</a>
+                        <a href="{% url 'register' %}" class="btn" style="background: var(--accent-color); color: white;">Регистрация</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
