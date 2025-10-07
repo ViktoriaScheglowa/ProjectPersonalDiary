@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from catalog.form import StyleFormMixin
+from moments.forms import StyleFormMixin
 from .models import User
 
 

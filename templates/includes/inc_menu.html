@@ -1,29 +1,50 @@
-<div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    📖 Мой Дневник
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="{% url 'diary:index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Главная</a></li>
-                        <li><a href="{% url 'diary:entry_list' %}" class="{% if request.resolver_match.url_name == 'entry_list' %}active{% endif %}">Все записи</a></li>
-                        {% if user.is_authenticated %}
-                            <li><a href="{% url 'diary:entry_create' %}" class="{% if request.resolver_match.url_name == 'entry_create' %}active{% endif %}">Новая запись</a></li>
-                        {% endif %}
-                        <li><a href="#">О проекте</a></li>
-                    </ul>
-                </nav>
-                <div class="user-info">
-                    {% if user.is_authenticated %}
-                        <div class="avatar">
-                            {{ user.username|first|upper }}
-                        </div>
-                        <span>Привет, {{ user.username }}!</span>
-                        <a href="{% url 'logout' %}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">Выйти</a>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">Войти</a>
-                        <a href="{% url 'register' %}" class="btn" style="background: var(--accent-color); color: white;">Регистрация</a>
-                    {% endif %}
-                </div>
+<header class="header-hover-menu">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <span>📖</span> Мой Дневник
             </div>
+
+            <!-- Кнопка меню для мобильных -->
+            <button class="menu-toggle" id="menuToggle">☰</button>
+
+            <nav class="main-nav">
+                <ul class="main-menu" id="mainMenu">
+                    <li><a href="/">Главная</a></li>
+
+                    <!-- Меню Публичное -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">Публичное <span class="arrow">▼</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/moments/public/">Публичные моменты</a></li>
+                            <li><a href="/idea/public/">Публичные мысли</a></li>
+                            <li><a href="/goal/public/">Публичные цели</a></li>
+                            <li><a href="/habits/public/">Публичные привычки</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Меню Личное -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">Личное <span class="arrow">▼</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/moments/my/">Мои моменты</a></li>
+                            <li><a href="/idea/my/">Мои мысли</a></li>
+                            <li><a href="/goal/my/">Мои цели</a></li>
+                            <li><a href="'/habits/my/">Мои привычки</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Меню Пользователи -->
+                    <ul class="navbar-nav ml-auto">
+                    {% if user.is_authenticated %}
+                    <li><a href="/user/logout/" class="text-white">Выход</a></li>
+                   {% else %}
+                    <li><a href="/user/login/" class="text-white">Вход</a></li>
+                    <li><a href="/user/register/" class="text-white">Регистрация</a></li>
+                    {% endif %}
+                  </ul>
+                </ul>
+            </nav>
         </div>
+    </div>
+</header>

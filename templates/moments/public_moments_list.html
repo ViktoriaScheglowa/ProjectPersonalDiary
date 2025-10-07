@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Публичные моменты{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="section-title">Публичные моменты</h1>
+    <p>Здесь будут отображаться публичные моменты всех пользователей</p>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Пример момента</h5>
+                </div>
+                <div class="card-body">
+                    <p>Это пример публичного момента...</p>
+                    <small class="text-muted">Автор: Пользователь</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

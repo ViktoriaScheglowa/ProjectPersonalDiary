@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -57,6 +58,10 @@ class PublicGoalListAPIView(ListAPIView):
 
     def get_queryset(self):
         return Goal.objects.filter(is_public=True)
+
+
+class PublicGoalTemplateView(TemplateView):
+    template_name = 'goal/public_goal_list.html'
 
 
 @method_decorator(

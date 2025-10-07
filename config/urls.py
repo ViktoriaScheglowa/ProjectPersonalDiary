@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -24,7 +24,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='main.html'), name='main'),
+    path('', TemplateView.as_view(template_name='main/main.html'), name='main'),
     path('admin/', admin.site.urls),
     path('user/', include('user.urls', namespace='user')),
     path('habits/', include('habits.urls', namespace='habits')),

@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends 'base.html' %}
+{% load my_tags %}
+{% block title %}Мои интересные моменты{% endblock %}
+{% block content %}
+    <h2>Мои интересные моменты</h2>
+    <div class="album py-5 bg-body-tertiary">
+        <div class="container">
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for moment in moments %}
+            <div class="col">
+                <div class="card shadow-sm">
+                  <img src="{{ moment.picture | media_filter }}" class="img-thumbnail" alt="{{ moment.name }}">
+                  <div class="card-body">
+                    <p class="card-text">{{ moment.name }}</p>
+                    <p class="card-text">Описание: {{moment.description | truncatechars:100}}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                          <a class="btn btn-primary" href="{% url 'moments:moment_detail' moment.pk %}" role="button">Подробности</a>
+                      </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+            <!-- Если нет блогов, отображаем сообщение -->
+                <div class="col-12 text-center">
+                    <p>Нет интересныех моментов.</p>
+                </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    <div class="fixed-bottom d-flex justify-content-center mb-3">
+        <a class="btn btn-primary btn-lg shadow" href="{% url 'blog:blog_create' %}" role="button">Создать интересный момент</a>
+    </div>
+{% endblock %}

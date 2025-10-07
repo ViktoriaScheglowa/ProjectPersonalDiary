@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -59,7 +60,6 @@ class PublicHabitListAPIView(ListAPIView):
     Получение списка публичных привычек. Доступно для всех пользователей.
     Реализована пагинация по 5 элементов на странице.
     """
-    template_name = 'habits/public_habits_list.html'
     context_object_name = 'public_habits'
     serializer_class = PublicListHabitSerializer
     pagination_class = CustomPaginator
@@ -71,6 +71,10 @@ class PublicHabitListAPIView(ListAPIView):
             queryset = super().get_queryset()
             cache.set('public_habits_list', queryset, 60 * 15)
         return Habit.objects.filter(is_public=True)
+
+
+class PublicHabitsTemplateView(TemplateView):
+    template_name = 'habits/public_habits_list.html'
 
 
 @method_decorator(

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -54,9 +55,14 @@ class PublicIdeaListAPIView(ListAPIView):
     serializer_class = PublicListIdeaSerializer
     pagination_class = CustomPaginator
     permission_classes = (AllowAny,)
+    template_name = 'idea/public_idea_list.html'
 
     def get_queryset(self):
         return Myidea.objects.filter(is_public=True)
+
+
+class PublicIdeaTemplateView(TemplateView):
+    template_name = 'idea/public_idea_list.html'
 
 
 @method_decorator(
