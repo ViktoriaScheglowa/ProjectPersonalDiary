@@ -15,7 +15,7 @@
                     <p class="card-text">Описание: {{moment.description | truncatechars:100}}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
-                          <a class="btn btn-primary" href="{% url 'moments:moment_detail' moment.pk %}" role="button">Подробности</a>
+                          <a class="btn btn-primary" href="{% url 'moments:moments_detail' moment.pk %}" role="button">Подробности</a>
                       </div>
                       </div>
                   </div>
@@ -31,6 +31,6 @@
         </div>
       </div>
     <div class="fixed-bottom d-flex justify-content-center mb-3">
-        <a class="btn btn-primary btn-lg shadow" href="{% url 'blog:blog_create' %}" role="button">Создать интересный момент</a>
+        <a class="btn btn-primary btn-lg shadow" href="{% url 'moments:moments_create' %}" role="button">Создать интересный момент</a>
     </div>
 {% endblock %}

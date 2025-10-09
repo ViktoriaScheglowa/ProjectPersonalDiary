@@ -1,6 +1,6 @@
-{% if user.is_authenticated %}
 {% extends 'base.html' %}
 {% block content %}
+{% if user.is_authenticated %}
 <div class="row pt-3 pb-2 mb-3">
     <div class="col-lg-6 col-md-8 mx-auto">
         <div class="card mb-4 box-shadow">
@@ -20,7 +20,7 @@
                     {% else %}
                     <button type="submit" class="btn btn-outline-secondary btn-sm">Добавить</button>
                     {% endif %}
-                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'moments:my_moments_list' %}"
+                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'moments:moments_list' %}"
                        role="button">Назад</a>
                 </form>
             </div>
