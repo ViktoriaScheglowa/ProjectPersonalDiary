@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Создание пользователя{% endblock %}
+{% block content %}
+<div class="bd-example m-0 border-0">
+    <div class="card" style="width: 50rem;">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.as_p }}
+
+                <button class="btn active" type="submit">
+                    {% if object %}
+                    Сохранить
+                    {% else %}
+                    Добавить
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

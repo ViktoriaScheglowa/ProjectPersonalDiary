@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="pt-3 pb-2 mb-3">Пользователи</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Электронная почта</th>
+            <th>Страна</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in object_list %}
+        <tr>
+            <td>{{ user.avatar }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.country }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

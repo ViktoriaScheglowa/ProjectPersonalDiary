@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Email подтвержден{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center text-success">✓ Email успешно подтвержден!</h3>
+                </div>
+                <div class="card-body text-center">
+                    <p>Ваш email был успешно подтвержден. Теперь вы можете войти в систему.</p>
+                    <a href="/user/login/" class="btn btn-primary">Войти в систему</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
