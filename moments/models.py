@@ -44,4 +44,4 @@ class Moment(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Момент пользователя {self.user.username} от {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+        return f"Момент пользователя {self.owner} от {self.created_at.strftime('%Y-%m-%d %H:%M')}"

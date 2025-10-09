@@ -21,15 +21,6 @@ from moments.serializers import MomentsSerializer, PublicListMomentSerializer
 from moments.forms import StyleFormMixin
 
 
-class MomentFormMixin(StyleFormMixin, LoginRequiredMixin):
-    model = Moment
-    fields = ['title', 'comments', 'photo', 'video', 'location', 'is_public']
-
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        return super().form_valid(form)
-
-
 class MomentsListView(LoginRequiredMixin, ListView):
     model = Moment
     template_name = 'moments/my_moments_list.html'
@@ -40,14 +31,25 @@ class MomentsListView(LoginRequiredMixin, ListView):
         return Moment.objects.filter(owner=self.request.user)
 
 
-class MomentsCreateView(MomentFormMixin, CreateView):
+class MomentsCreateView(LoginRequiredMixin, CreateView):
+    model = Moment
+    form_class = MomentForm  
     template_name = 'moments/moments_form.html'
     success_url = reverse_lazy('moments:moments_list')
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
-class MomentsUpdateView(MomentFormMixin, UpdateView):
+
+class MomentsUpdateView(LoginRequiredMixin, UpdateView):
+    model = Moment
+    form_class = MomentForm
     template_name = 'moments/moments_form.html'
     success_url = reverse_lazy('moments:moments_list')
+
+    def get_queryset(self):
+        return Moment.objects.filter(owner=self.request.user)
 
 
 class MomentsDetailView(LoginRequiredMixin, DetailView):
@@ -108,10 +110,6 @@ class PublicMomentsTemplateView(TemplateView):
         return context
 
 
-# Остальные API views остаются без изменений...
-
-
-# Или модифицируйте API View для поддержки HTML
 class MomentsCreateAPIView(CreateAPIView):
     queryset = Moment.objects.all()
     serializer_class = MomentsSerializer
