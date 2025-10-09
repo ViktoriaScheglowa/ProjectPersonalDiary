@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Регистрация{% endblock %}
-
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
@@ -12,42 +10,28 @@
                     <h3 class="text-center">Регистрация</h3>
                 </div>
                 <div class="card-body">
-                    {% if success_message %}
-                        <div class="alert alert-success">{{ success_message }}</div>
-                    {% endif %}
-
-                    {% if error_message %}
-                        <div class="alert alert-danger">
-                            {{ error_message }}
-                            {% if errors %}
-                                <ul class="mb-0 mt-2">
-                                {% for field, error_list in errors.items %}
-                                    <li>{{ field }}: {{ error_list.0 }}</li>
-                                {% endfor %}
-                                </ul>
-                            {% endif %}
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
+                        {% endfor %}
+                    </div>
                     {% endif %}
 
                     <form method="post">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email"
-                                   value="{{ form_data.email|default:'' }}"
-                                   placeholder="Введите email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Пароль</label>
-                            <input type="password" class="form-control" id="password" name="password"
-                                   placeholder="Введите пароль" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
-                    </form>
 
-                    <div class="mt-3 text-center">
-                        <p>Уже есть аккаунт? <a href="/user/login/">Войти</a></p>
-                    </div>
+                        <!-- Простой рендеринг формы -->
+                        {{ form.as_p }}
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                            <a href="{% url 'user:login' %}" class="btn btn-link">Уже есть аккаунт? Войдите</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

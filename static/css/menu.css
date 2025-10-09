@@ -1,3 +1,26 @@
+.nav-link, .nav-link-btn {
+    display: inline-block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link-btn:hover {
+    background-color: rgba(0,0,0,0.1);
+    color: #000;
+}
+
+/* Стили для активного состояния */
+.nav-link.active, .nav-link-btn.active {
+    background-color: #007bff;
+    color: white;
+}
 /* Navigation */
 nav ul {
     display: flex;

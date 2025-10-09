@@ -1,6 +1,8 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -71,14 +73,28 @@ class PublicMomentsTemplateView(TemplateView):
         operation_summary="Создание момента",
     ),
 )
-class MomentsCreateAPIView(CreateAPIView):
-    """
-    Создание нового момента. Требуются авторизация.
-    """
+class MomentsCreateView(LoginRequiredMixin, CreateView):
+    model = Moment
+    template_name = 'moments/moment_form.html'  # укажите ваш шаблон
+    fields = ['title', 'comments', 'photo', 'video', 'location', 'is_public']
+    success_url = reverse_lazy('moments:moments_list')
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+
+# Или модифицируйте API View для поддержки HTML
+class MomentsCreateAPIView(CreateAPIView):
     queryset = Moment.objects.all()
     serializer_class = MomentsSerializer
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+
+        if request.accepted_media_type == 'text/html' or 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+            return render(request, 'moments/create_form.html')
+        return super().get(request, *args, **kwargs)
 
 
 @method_decorator(

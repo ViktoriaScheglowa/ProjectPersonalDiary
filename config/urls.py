@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LogoutView
 from django.views.generic import TemplateView, RedirectView
 
 from django.conf import settings
@@ -7,8 +8,6 @@ from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
-
-from user.views import CustomTokenObtainPairView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -23,16 +22,17 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+app_name = 'user'
+
 urlpatterns = [
     path('', TemplateView.as_view(template_name='main/main.html'), name='main'),
     path('admin/', admin.site.urls),
-    path('user/', include('user.urls', namespace='user')),
+    path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
+    path('user/', include('user.urls')),
     path('habits/', include('habits.urls', namespace='habits')),
     path('idea/', include('idea.urls', namespace='idea')),
     path('moments/', include('moments.urls', namespace='moments')),
     path('goal/', include('goal.urls', namespace='goal')),
-    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
-    path('token/refresh/', CustomTokenObtainPairView.as_view(), name='token_refresh'),
     path(
         'swagger/',
         schema_view.with_ui('swagger', cache_timeout=0),

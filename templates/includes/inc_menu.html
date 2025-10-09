@@ -16,31 +16,42 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle">Публичное <span class="arrow">▼</span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="/moments/public/">Публичные моменты</a></li>
-                            <li><a href="/idea/public/">Публичные мысли</a></li>
-                            <li><a href="/goal/public/">Публичные цели</a></li>
-                            <li><a href="/habits/public/">Публичные привычки</a></li>
+                            <li><a href="/moments/public/" class="nav-link">Публичные моменты</a></li>
+                            <li><a href="/idea/public/" class="nav-link">Публичные мысли</a></li>
+                            <li><a href="/goal/public/" class="nav-link">Публичные цели</a></li>
+                            <li><a href="/habits/public/" class="nav-link">Публичные привычки</a></li>
                         </ul>
                     </li>
 
                     <!-- Меню Личное -->
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle">Личное <span class="arrow">▼</span></a>
+                        <a href="#" class="dropdown-toggle nav-link">Личное <span class="arrow">▼</span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="/moments/my/">Мои моменты</a></li>
-                            <li><a href="/idea/my/">Мои мысли</a></li>
-                            <li><a href="/goal/my/">Мои цели</a></li>
-                            <li><a href="'/habits/my/">Мои привычки</a></li>
+                            <li><a href="/moments/my/" class="nav-link">Мои моменты</a></li>
+                            <li><a href="/idea/my/" class="nav-link">Мои мысли</a></li>
+                            <li><a href="/goal/my/" class="nav-link">Мои цели</a></li>
+                            <li><a href="/habits/my/" class="nav-link">Мои привычки</a></li>
                         </ul>
                     </li>
 
                     <!-- Меню Пользователи -->
-                    <ul class="navbar-nav ml-auto">
                     {% if user.is_authenticated %}
-                    <li><a href="/user/logout/" class="text-white">Выход</a></li>
-                   {% else %}
-                    <li><a href="/user/login/" class="text-white">Вход</a></li>
-                    <li><a href="/user/register/" class="text-white">Регистрация</a></li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="document.getElementById('logout-form').submit(); return false;">Выйти</a>
+                            <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
+                                {% csrf_token %}
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'user:profile' %}" class="nav-link">Профиль</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user:login' %}">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user:register' %}">Регистрация</a>
+                        </li>
                     {% endif %}
                   </ul>
                 </ul>
