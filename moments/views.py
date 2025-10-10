@@ -58,7 +58,7 @@ class MomentsDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'moment'
 
     def get_queryset(self):
-        return Moment.objects.filter(owner=self.request.user)
+        return Moment.objects.all()
 
 
 class MomentsDeleteView(LoginRequiredMixin, DeleteView):

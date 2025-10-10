@@ -58,6 +58,7 @@
                     </div>
 
                     <div class="d-flex gap-2 mt-4">
+                        {% if user.is_authenticated and user == moment.owner %}
                         <a href="{% url 'moments:moments_list' %}" class="btn btn-secondary">
                             ← Назад к списку
                         </a>
@@ -67,6 +68,11 @@
                         <a href="{% url 'moments:moments_delete' moment.pk %}" class="btn btn-danger">
                             Удалить
                         </a>
+                        {% else %}
+                        <a href="{% url 'moments:public_moments_list' %}" class="btn btn-secondary">
+                            ← Назад к списку
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

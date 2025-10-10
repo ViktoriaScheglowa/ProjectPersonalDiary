@@ -24,22 +24,29 @@ from goal.serializers import GoalSerializer, PublicListGoalSerializer
 class GoalListView(LoginRequiredMixin, ListView):
     model = Goal
     template_name = 'goal/my_goal_list.html'
-    context_object_name = 'goal'
+    context_object_name = 'goals'
     paginate_by = 5
 
     def get_queryset(self):
-        return Goal.objects.filter(owner=self.request.user)
+        goals = Goal.objects.filter(owner=self.request.user)  # или owner
+        print(f"DEBUG: User {self.request.user} has {goals.count()} goals")
+        for goal in goals:
+            print(f"DEBUG: Goal '{goal.title}', owner: {goal.owner}")
+        return goals
 
 
 class GoalCreateView(LoginRequiredMixin, CreateView):
     model = Goal
     form_class = GoalForms
-    template_name = 'goal/goal_form.html'
-    success_url = reverse_lazy('goal:goal_list')
+    template_name = 'goal/form.html'
+    success_url = reverse_lazy('goal:my_goal_list')
 
     def form_valid(self, form):
+        print(f"DEBUG: Setting owner to {self.request.user}")
         form.instance.owner = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        print(f"DEBUG: Goal created with ID {self.object.id}, owner: {self.object.owner}")
+        return response
 
 
 class GoalUpdateView(LoginRequiredMixin, UpdateView):
@@ -58,7 +65,7 @@ class GoalDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'goal'
 
     def get_queryset(self):
-        return Goal.objects.filter(owner=self.request.user)
+        return Goal.objects.all()
 
 
 class GoalDeleteView(LoginRequiredMixin, DeleteView):
@@ -97,9 +104,12 @@ class PublicGoalTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        goals = Goal.objects.filter(is_public=True)
-        print(f"Found {len(goals)} public goal")  # Для отладки
-        context['goals'] = goals
+        public_goals = Goal.objects.filter(is_public=True)
+        print(f"DEBUG PublicGoalTemplateView: Found {public_goals.count()} public goals")
+        for goal in public_goals:
+            print(
+                f"DEBUG: Public goal '{goal.title}' (ID: {goal.id}), owner: {goal.owner}, is_public: {goal.is_public}")
+        context['goals'] = public_goals
         return context
 
 
@@ -132,16 +142,23 @@ class GoalUpdateAPIView(UpdateAPIView):
     Доступ к конкретным целям есть только у создателя цели и суперпользователя.
     """
 
-    queryset = Goal.objects.all()
-    serializer_class = GoalSerializer
+    model = Goal
+    form_class = GoalForms
+    template_name = 'goal/form.html'
 
-    def perform_update(self, serializer):
-        user = self.request.user
-        habit = self.get_object()
+    def get_queryset(self):
+        # Только свои цели можно редактировать
+        return Goal.objects.filter(owner=self.request.user)
 
-        if not user == habit.owner:
-            raise PermissionDenied("У Вас нет прав редактировать эту цель.")
-        serializer.save()
+    def dispatch(self, request, *args, **kwargs):
+        # Дополнительная проверка прав
+        obj = self.get_object()
+        if obj.owner != request.user:
+            raise PermissionDenied("Вы не можете редактировать эту цель")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('goal:goal_detail', kwargs={'pk': self.object.pk})
 
 
 @method_decorator(

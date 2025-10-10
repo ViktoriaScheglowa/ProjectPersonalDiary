@@ -5,7 +5,6 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="section-title">Публичные цели</h1>
-    <p>Здесь отображаются публичные цели всех пользователей</p>
 
     {% if goals %}
     <div class="row">
@@ -26,6 +25,10 @@
                         background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
                     ">
                     </div>
+                    {% else %}
+                    <div class="card-background bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <span class="text-muted">Нет фото</span>
+                    </div>
                     {% endif %}
 
                     <div class="card-body d-flex flex-column text-white position-relative z-1">
@@ -35,13 +38,22 @@
                         <p class="flex-grow-1">{{ goal.content|truncatewords:20 }}</p>
                         {% endif %}
                         <div class="mt-auto">
-                            <small class="text-muted">
+                            <small class="text-light">
                                 Автор: {{ goal.owner }}
                             </small>
                             <br>
-                            <small class="text-muted">
+                            <small class="text-light">
+                                Место: {{ goal.location }}
+                            </small>
+                            <br>
+                            <small class="text-light">
                                 Создан: {{ goal.created_at|date:"d.m.Y H:i" }}
                             </small>
+                            <div class="btn-group mt-3 w-100">
+                                <a class="btn btn-sm btn-outline-light" href="{% url 'moments:moments_detail' moment.pk %}" role="button">
+                                    Подробнее
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -56,31 +68,47 @@
     </div>
 </div>
 <style>
-.goal-image-container {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-}
-
-.goal-image {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+.section-title {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 1rem;
 }
 
 .card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: box-shadow 0.3s ease;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .card:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-background {
+    border-radius: 12px 12px 0 0;
+}
+
+.card-body {
+    position: relative;
+    z-index: 2;
+}
+
+.card-overlay {
+    top: 0;
+    left: 0;
+    border-radius: 12px;
+    z-index: 1;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.text-light {
+    opacity: 0.9;
 }
 </style>
 {% endblock %}

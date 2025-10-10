@@ -15,12 +15,8 @@ class GoalForms(forms.ModelForm):
             'video': forms.FileInput(attrs={'class': 'form-control'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Укажите место'}),
             'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'date_deadline': forms.DateInput(
-                attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Выберите дату'}
-            ),
-            'time_deadline': forms.TimeInput(
-                attrs={'class': 'form-control', 'type': 'time', 'placeholder': 'Выберите время'}
-            ),
+            'date_deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'time_deadline': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
         }
 
     def __init__(self, *args, **kwargs):

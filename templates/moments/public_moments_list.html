@@ -5,62 +5,63 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="section-title">Публичные моменты</h1>
-    <p>Здесь отображаются публичные моменты всех пользователей</p>
 
     {% if moments %}
     <div class="row">
         {% for moment in moments %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 position-relative">
-                {% if moment.photo %}
-                <div class="card-background" style="
-                    height: 300px;
-                    background-image: url('{{ moment.photo.url }}');
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;">
-                </div>
-                <div class="card-overlay position-absolute w-100 h-100 d-flex flex-column justify-content-end text-white p-3" style="
-                    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-                ">
-                </div>
-                {% else %}
-                <div class="card-background bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
-                    <span class="text-muted">Нет фото</span>
-                </div>
-                {% endif %}
-
-                <div class="card-body d-flex flex-column text-white position-relative z-1">
-                    <h5>{{ moment.title|default:"Без названия" }}</h5>
-
-                    {% if moment.comments %}
-                    <p class="flex-grow-1">{{ moment.comments|truncatewords:20 }}</p>
+                <h5>{{ goal.title }}</h5>
+                <div class="card-body d-flex flex-column">
+                    {% if moment.photo %}
+                    <div class="card-background" style="
+                        height: 300px;
+                        background-image: url('{{ moment.photo.url }}');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;">
+                    </div>
+                    <div class="card-overlay position-absolute w-100 h-100 d-flex flex-column justify-content-end text-white p-3" style="
+                        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+                    ">
+                    </div>
+                    {% else %}
+                    <div class="card-background bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <span class="text-muted">Нет фото</span>
+                    </div>
                     {% endif %}
 
-                    <div class="mt-auto">
-                        <small class="text-light">
-                            Автор: {{ moment.owner }}
-                        </small>
-                        <br>
-                        <small class="text-light">
-                            Место: {{ moment.location }}
-                        </small>
-                        <br>
-                        <small class="text-light">
-                            Создан: {{ moment.created_at|date:"d.m.Y H:i" }}
-                        </small>
+                    <div class="card-body d-flex flex-column text-white position-relative z-1">
+                        <h5>{{ moment.title|default:"Без названия" }}</h5>
 
-                        <div class="btn-group mt-3 w-100">
-                            <a class="btn btn-sm btn-outline-light" href="{% url 'moments:moments_detail' moment.pk %}" role="button">
-                                Подробнее
-                            </a>
+                        {% if moment.comments %}
+                        <p class="flex-grow-1">{{ moment.comments|truncatewords:20 }}</p>
+                        {% endif %}
+
+                        <div class="mt-auto">
+                            <small class="text-light">
+                                Автор: {{ moment.owner }}
+                            </small>
+                            <br>
+                            <small class="text-light">
+                                Место: {{ moment.location }}
+                            </small>
+                            <br>
+                            <small class="text-light">
+                                Создан: {{ moment.created_at|date:"d.m.Y H:i" }}
+                            </small>
+
+                            <div class="btn-group mt-3 w-100">
+                                <a class="btn btn-sm btn-outline-light" href="{% url 'moments:moments_detail' moment.pk %}" role="button">
+                                    Подробнее
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         {% endfor %}
-    </div>
+        </div>
     {% else %}
     <div class="alert alert-info">
         Публичные моменты отсутствуют.
