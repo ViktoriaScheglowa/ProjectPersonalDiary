@@ -1,36 +1,129 @@
 {% extends 'base.html' %}
 {% load my_tags %}
-{% block title %}Мои цели{% endblock %}
+{% block title %}Мои интересные цели{% endblock %}
+
 {% block content %}
-    <h2>Мои цели</h2>
-    <div class="album py-5 bg-body-tertiary">
-        <div class="container">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            {% for goal in goals %}
-            <div class="col">
-                <div class="card shadow-sm">
-                  <img src="{{ goal.picture | media_filter }}" class="img-thumbnail" alt="{{ goal.name }}">
-                  <div class="card-body">
-                    <p class="card-text">{{ goal.name }}</p>
-                    <p class="card-text">Описание: {{goal.description | truncatechars:100}}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="btn-group">
-                          <a class="btn btn-primary" href="{% url 'goals:goal_detail' goal.pk %}" role="button">Подробности</a>
-                      </div>
-                      </div>
-                  </div>
+<div class="container mt-5">
+    <h1 class="section-title">Мои интересные цели</h1>
+    <p>Здесь отображаются все ваши сохраненные цели</p>
+
+    {% if goals %}
+    <div class="row">
+        {% for goal in goals %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 position-relative">
+                {% if goal.photo %}
+                <div class="card-background" style="
+                    height: 300px;
+                    background-image: url('{{ goal.photo.url }}');
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;">
                 </div>
-              </div>
-              {% empty %}
-            <!-- Если нет целей, отображаем сообщение -->
-                <div class="col-12 text-center">
-                    <p>Нет опубликованных целей.</p>
+                <div class="card-overlay position-absolute w-100 h-100 d-flex flex-column justify-content-end text-white p-3" style="
+                    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+                ">
                 </div>
-            {% endfor %}
-          </div>
+                {% else %}
+                <div class="card-background bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <span class="text-muted">Нет фото</span>
+                </div>
+                {% endif %}
+
+                <div class="card-body d-flex flex-column text-white position-relative z-1">
+                    <h5>{{ goal.title|default:"Без названия" }}</h5>
+
+                    {% if goal.comments %}
+                    <p class="flex-grow-1">{{ goal.comments|truncatewords:20 }}</p>
+                    {% endif %}
+
+                    <div class="mt-auto">
+                        <small class="text-light">
+                            Место: {{ goal.location }}
+                        </small>
+                        <br>
+                        <small class="text-light">
+                            Создан: {{ goal.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                        {% if goal.is_public %}
+                        <br>
+                        <span class="badge bg-success mt-1">Публичный</span>
+                        {% else %}
+                        <br>
+                        <span class="badge bg-secondary mt-1">Приватный</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="btn-group mt-3">
+                        <a class="btn btn-sm btn-outline-light" href="{% url 'goal:goal_detail' goal.pk %}" role="button">
+                            Подробности
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    <div class="fixed-bottom d-flex justify-content-center mb-3">
-        <a class="btn btn-primary btn-lg shadow" href="{% url 'goal:goal_create' %}" role="button">Создать цель</a>
+        {% endfor %}
     </div>
+    {% else %}
+    <div class="alert alert-info">
+        У вас пока нет интересных целей.
+    </div>
+    {% endif %}
+</div>
+
+<div class="fixed-bottom d-flex justify-content-center mb-3">
+    <a class="btn btn-primary btn-lg shadow" href="{% url 'goal:goal_create' %}" role="button">
+        Создать интересный цель
+    </a>
+</div>
+
+<style>
+.section-title {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-background {
+    border-radius: 12px 12px 0 0;
+}
+
+.card-body {
+    position: relative;
+    z-index: 2;
+}
+
+.card-overlay {
+    top: 0;
+    left: 0;
+    border-radius: 12px;
+    z-index: 1;
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.badge {
+    font-size: 0.7rem;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+</style>
 {% endblock %}

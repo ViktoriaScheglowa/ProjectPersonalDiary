@@ -33,5 +33,7 @@ class Myidea(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Мысли пользователя {self.user.username} от {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-
+        if self.owner:
+            return f"Мысли пользователя {self.owner} от {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+        else:
+            return f"Мысли (без владельца) от {self.created_at.strftime('%Y-%m-%d %H:%M')}"

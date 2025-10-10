@@ -2,7 +2,7 @@ from django.urls import path
 
 from moments.apps import MomentsConfig
 from moments.views import (
-    PublicMomentsListAPIView,
+    PublicMomentsTemplateView,
     MomentsListAPIView,
     MomentsCreateView,
     MomentsUpdateView,
@@ -27,7 +27,7 @@ urlpatterns = [
     path("<int:pk>/delete/", MomentsDeleteView.as_view(), name="moments_delete"),
 
     # API Views
-    path("api/moments/", PublicMomentsListAPIView.as_view(), name="public_moments_api"),
+    path("api/moments/", PublicMomentsTemplateView.as_view(), name="public_moments_api"),
     path("api/my/", MomentsListAPIView.as_view(), name="moments_list_api"),
     path("api/create/", MomentsCreateAPIView.as_view(), name="moments_create_api"),
     path("api/<int:pk>/update/", MomentsUpdateAPIView.as_view(), name="moments_update_api"),

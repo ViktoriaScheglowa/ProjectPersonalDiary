@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from moments.models import Moment
 from moments.paginators import CustomPaginator
 from moments.serializers import MomentsSerializer, PublicListMomentSerializer
-from moments.forms import StyleFormMixin
+from moments.forms import MomentForm
 
 
 class MomentsListView(LoginRequiredMixin, ListView):
@@ -92,21 +92,14 @@ class MomentsListAPIView(ListAPIView):
         operation_summary="Список публичных моментов",
     ),
 )
-class PublicMomentsListAPIView(ListAPIView):
-    serializer_class = PublicListMomentSerializer
-    pagination_class = CustomPaginator
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        return Moment.objects.filter(is_public=True)
-
-
 class PublicMomentsTemplateView(TemplateView):
     template_name = 'moments/public_moments_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['moments'] = Moment.objects.filter(is_public=True)
+        moments = Moment.objects.filter(is_public=True)
+        print(f"Found {len(moments)} public moments")  # Для отладки
+        context['moments'] = moments
         return context
 
 

@@ -27,6 +27,8 @@ class Goal(models.Model):
     location = models.CharField(
         max_length=30,
         verbose_name="Место",
+        blank=True,
+        null=True,
         help_text="Укажите место своей цели")
     owner = models.ForeignKey("user.User",
                               verbose_name='Владелец',
@@ -49,15 +51,21 @@ class Goal(models.Model):
     time_deadline = models.TimeField(
         verbose_name="Время выполнения цели",
         help_text="Время, когда необходимо выполнять цель",
+        blank=True,
+        null=True,
     )
     action = models.CharField(
         max_length=50,
         verbose_name="Действие",
         help_text="Действие, которое представляет собой цель",
+        blank=True,
+        null=True,
     )
     is_progress = models.BooleanField(
         verbose_name="Признак достижения",
         help_text="Достижение цели",
+        blank=True,
+        null=True,
     )
     is_active = models.BooleanField(verbose_name="Признак активности", default=True)
 
@@ -65,4 +73,4 @@ class Goal(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Цели пользователя {self.user.username} от {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+        return f"Цели пользователя {self.owner} от {self.created_at.strftime('%Y-%m-%d %H:%M')}"

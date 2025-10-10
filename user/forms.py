@@ -1,11 +1,19 @@
-# user/forms.py
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
 
-from moments.forms import StyleFormMixin
 from .models import User
 
+class StyleFormMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if hasattr(field, 'widget') and hasattr(field.widget, 'attrs'):
+                if 'class' not in field.widget.attrs:
+                    if isinstance(field, forms.BooleanField):
+                        field.widget.attrs['class'] = 'form-check-input'
+                    else:
+                        field.widget.attrs['class'] = 'form-control'
 
 class UserRegisterForm(forms.ModelForm):
     """

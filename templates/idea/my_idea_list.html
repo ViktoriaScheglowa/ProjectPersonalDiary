@@ -11,7 +11,7 @@
                 <div class="card shadow-sm">
                   <img src="{{ idea.picture | media_filter }}" class="img-thumbnail" alt="{{ idea.name }}">
                   <div class="card-body">
-                    <p class="card-text">{{ idea.name }}</p>
+                    <p class="card-text">{{ idea.title }}</p>
                     <p class="card-text">Описание: {{idea.description | truncatechars:100}}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">

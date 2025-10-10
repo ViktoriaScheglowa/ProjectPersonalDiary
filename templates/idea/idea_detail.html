@@ -1,10 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load my_tags %}
+{% block title %}Детали мысли{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="section-title mb-0">{{ idea.title }}</h1>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted">
+                            Создан: {{ idea.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                        {% if idea.is_public %}
+                        <span class="badge bg-success">Публичный</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Приватный</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if idea.photo %}
+                    <div class="mb-4">
+                        <div class="idea-image-container mb-3" style="height: 400px;">
+                            <img src="{{ idea.photo.url }}" alt="{{ idea.title }}" class="idea-image">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if idea.video %}
+                    <div class="mb-4">
+                        <h5>Видео</h5>
+                        <video controls class="w-100" style="max-height: 400px;">
+                            <source src="{{ idea.video.url }}" type="video/mp4">
+                            Ваш браузер не поддерживает видео тег.
+                        </video>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <h5>Место</h5>
+                        <p class="fs-6">{{ idea.location }}</p>
+                    </div>
+
+                    {% if idea.comments %}
+                    <div class="mb-3">
+                        <h5>Комментарии</h5>
+                        <p class="fs-6">{{ idea.comments|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <h5>Владелец</h5>
+                        <p class="fs-6">{{ idea.owner }}</p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="{% url 'idea:idea_list' %}" class="btn btn-secondary">
+                            ← Назад к списку
+                        </a>
+                        <a href="{% url 'idea:idea_update' idea.pk %}" class="btn btn-primary">
+                            Редактировать
+                        </a>
+                        <a href="{% url 'idea:idea_delete' idea.pk %}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.section-title {
+    color: #333;
+    font-weight: 600;
+}
+
+.idea-image-container {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.idea-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 12px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}
