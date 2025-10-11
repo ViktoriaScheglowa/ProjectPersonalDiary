@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
 
 from .models import User
 
+
 class StyleFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -14,6 +15,7 @@ class StyleFormMixin:
                         field.widget.attrs['class'] = 'form-check-input'
                     else:
                         field.widget.attrs['class'] = 'form-control'
+
 
 class UserRegisterForm(forms.ModelForm):
     """
@@ -94,7 +96,7 @@ class UserRegisterForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'avatar', 'phone_number', 'country', 'chat_id']
+        fields = ['first_name', 'last_name', 'email', 'avatar', 'phone_number', 'country', 'chat_id']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -103,6 +105,7 @@ class UserProfileForm(forms.ModelForm):
 
         self.fields['first_name'].widget.attrs['placeholder'] = 'Введите имя'
         self.fields['last_name'].widget.attrs['placeholder'] = 'Введите фамилию'
+        self.fields['email'].widget.attrs['placeholder'] = 'Введите почту'
         self.fields['phone_number'].widget.attrs['placeholder'] = '+7 (XXX) XXX-XX-XX'
         self.fields['country'].widget.attrs['placeholder'] = 'Страна проживания'
         self.fields['chat_id'].widget.attrs['placeholder'] = 'ID чата для уведомлений'

@@ -1,36 +1,290 @@
 {% extends 'base.html' %}
 {% load my_tags %}
-{% block title %}Мои мысли{% endblock %}
+{% block title %}Мои интересные мысли{% endblock %}
+
 {% block content %}
-    <h2>Мои мысли</h2>
-    <div class="album py-5 bg-body-tertiary">
-        <div class="container">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            {% for idea in ideas %}
-            <div class="col">
-                <div class="card shadow-sm">
-                  <img src="{{ idea.picture | media_filter }}" class="img-thumbnail" alt="{{ idea.name }}">
-                  <div class="card-body">
-                    <p class="card-text">{{ idea.title }}</p>
-                    <p class="card-text">Описание: {{idea.description | truncatechars:100}}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="btn-group">
-                          <a class="btn btn-primary" href="{% url 'idea:idea_detail' idea.pk %}" role="button">Подробности</a>
-                      </div>
-                      </div>
-                  </div>
+<div class="container mt-4">
+    <h1 class="section-title">Мои интересные мысли</h1>
+
+    {% if ideas %}
+    <div class="row">
+        {% for idea in ideas %}
+        <div class="col-12 col-sm-6 col-lg-4 mb-4">
+            <div class="card idea-card">
+                <div class="idea-image-container">
+                    {% if idea.photo %}
+                    <img src="{{ idea.photo.url }}"
+                         alt="{{ idea.title|default:'Мысль' }}"
+                         class="idea-image">
+                    {% else %}
+                    <div class="idea-no-image bg-light"></div>
+                    {% endif %}
+
+                    <div class="idea-overlay">
+                        <div class="idea-content">
+                            <h5 class="idea-title">{{ idea.title|default:"Без названия" }}</h5>
+
+                            {% if idea.comments %}
+                            <p class="idea-description">{{ idea.comments|truncatewords:15 }}</p>
+                            {% endif %}
+
+                            <div class="idea-meta">
+                                <div class="idea-meta-item">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <small>{{ idea.location|default:"Место не указано" }}</small>
+                                </div>
+                                <div class="idea-meta-item">
+                                    <i class="bi bi-calendar"></i>
+                                    <small>{{ idea.created_at|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                <div class="idea-meta-item">
+                                    {% if idea.is_public %}
+                                    <i class="bi bi-globe text-success"></i>
+                                    <small class="text-success">Публичный</small>
+                                    {% else %}
+                                    <i class="bi bi-lock text-secondary"></i>
+                                    <small class="text-secondary">Приватный</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="idea-actions">
+                                <a class="btn btn-primary btn-sm"
+                                   href="{% url 'idea:idea_detail' idea.pk %}"
+                                   role="button">
+                                    Подробности
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              {% empty %}
-            <!-- Если нет блогов, отображаем сообщение -->
-                <div class="col-12 text-center">
-                    <p>Нет опубликованных мыслей.</p>
-                </div>
-            {% endfor %}
-          </div>
+            </div>
         </div>
-      </div>
-    <div class="fixed-bottom d-flex justify-content-center mb-3">
-        <a class="btn btn-primary btn-lg shadow" href="{% url 'idea:idea_create' %}" role="button">Записать мысли</a>
+        {% endfor %}
     </div>
+    {% else %}
+    <div class="alert alert-info text-center py-4">
+        <h4 class="mb-3">У вас пока нет интересных мыслей</h4>
+        <p class="mb-0">Создайте свою первую мысль!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="fixed-bottom d-flex justify-content-center mb-4">
+    <a class="btn btn-primary btn-lg shadow create-btn" href="{% url 'idea:idea_create' %}" role="button">
+        <i class="bi bi-plus-circle"></i>
+        Создать интересную мысль
+    </a>
+</div>
+
+<style>
+.section-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.idea-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(139, 115, 85, 0.15);
+    transition: all 0.3s ease;
+    background: transparent;
+    height: 380px;
+}
+
+.idea-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(139, 115, 85, 0.25);
+}
+
+.idea-image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.idea-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.idea-no-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--beige-primary) 0%, var(--beige-dark) 100%);
+}
+
+.idea-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 30%,
+        rgba(0, 0, 0, 0.4) 60%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.75rem;
+    color: white;
+}
+
+.idea-content {
+    width: 100%;
+}
+
+.idea-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    line-height: 1.3;
+}
+
+.idea-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    opacity: 0.95;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.idea-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.idea-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+}
+
+.idea-meta-item i {
+    font-size: 0.9rem;
+    width: 16px;
+}
+
+.idea-meta-item small {
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.idea-actions .btn {
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid white;
+    color: var(--terracotta-primary);
+    transition: all 0.3s ease;
+}
+
+.idea-actions .btn:hover {
+    background: white;
+    color: var(--terracotta-dark);
+    transform: translateY(-2px);
+}
+
+.create-btn {
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--terracotta-primary) 0%, var(--terracotta-dark) 100%);
+    border: 2px solid var(--terracotta-primary);
+    box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+    transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+    background: linear-gradient(135deg, var(--terracotta-light) 0%, var(--terracotta-primary) 100%);
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+    background: var(--beige-lighter);
+    color: var(--text-dark);
+}
+
+/* Для карточек без фото */
+.idea-no-image + .idea-overlay {
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(139, 115, 85, 0.6) 50%,
+        rgba(107, 93, 77, 0.8) 100%
+    );
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .idea-card {
+        height: 350px;
+    }
+
+    .idea-overlay {
+        padding: 1.5rem;
+    }
+
+    .idea-title {
+        font-size: 1.2rem;
+    }
+
+    .create-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .idea-card {
+        height: 320px;
+    }
+
+    .idea-overlay {
+        padding: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.7rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .col-sm-6 {
+        margin-bottom: 1rem;
+    }
+
+    .create-btn {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+}
+</style>
 {% endblock %}

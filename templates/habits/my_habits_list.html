@@ -1,36 +1,290 @@
 {% extends 'base.html' %}
 {% load my_tags %}
-{% block title %}Мои привычки{% endblock %}
+{% block title %}Мои интересные привычки{% endblock %}
+
 {% block content %}
-    <h2>Мои привычки</h2>
-    <div class="album py-5 bg-body-tertiary">
-        <div class="container">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            {% for habit in habits %}
-            <div class="col">
-                <div class="card shadow-sm">
-                  <img src="{{ habit.picture | media_filter }}" class="img-thumbnail" alt="{{ habit.name }}">
-                  <div class="card-body">
-                    <p class="card-text">{{ habit.name }}</p>
-                    <p class="card-text">Описание: {{habit.description | truncatechars:100}}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="btn-group">
-                          <a class="btn btn-primary" href="{% url 'habits:habit_detail' habit.pk %}" role="button">Подробности</a>
-                      </div>
-                      </div>
-                  </div>
+<div class="container mt-4">
+    <h1 class="section-title">Мои интересные привычки</h1>
+
+    {% if habits %}
+    <div class="row">
+        {% for habit in habits %}
+        <div class="col-12 col-sm-6 col-lg-4 mb-4">
+            <div class="card habitt-card">
+                <div class="habit-image-container">
+                    {% if habit.photo %}
+                    <img src="{{ habit.photo.url }}"
+                         alt="{{ habit.title|default:'Привычки' }}"
+                         class="habit-image">
+                    {% else %}
+                    <div class="habit-no-image bg-light"></div>
+                    {% endif %}
+
+                    <div class="habit-overlay">
+                        <div class="habit-content">
+                            <h5 class="habit-title">{{ habit.title|default:"Без названия" }}</h5>
+
+                            {% if habit.comments %}
+                            <p class="habit-description">{{ habit.comments|truncatewords:15 }}</p>
+                            {% endif %}
+
+                            <div class="habit-meta">
+                                <div class="habit-meta-item">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <small>{{ habit.location|default:"Место не указано" }}</small>
+                                </div>
+                                <div class="habit-meta-item">
+                                    <i class="bi bi-calendar"></i>
+                                    <small>{{ habit.created_at|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                <div class="habit-meta-item">
+                                    {% if habit.is_public %}
+                                    <i class="bi bi-globe text-success"></i>
+                                    <small class="text-success">Публичный</small>
+                                    {% else %}
+                                    <i class="bi bi-lock text-secondary"></i>
+                                    <small class="text-secondary">Приватный</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="habit-actions">
+                                <a class="btn btn-primary btn-sm"
+                                   href="{% url 'habits:habits_detail' habit.pk %}"
+                                   role="button">
+                                    Подробности
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              {% empty %}
-            <!-- Если нет привычек, отображаем сообщение -->
-                <div class="col-12 text-center">
-                    <p>Нет опубликованных привычек.</p>
-                </div>
-            {% endfor %}
-          </div>
+            </div>
         </div>
-      </div>
-    <div class="fixed-bottom d-flex justify-content-center mb-3">
-        <a class="btn btn-primary btn-lg shadow" href="{% url 'habits:habit_create' %}" role="button">Создать привычку</a>
+        {% endfor %}
     </div>
+    {% else %}
+    <div class="alert alert-info text-center py-4">
+        <h4 class="mb-3">У вас пока нет интересных привычек</h4>
+        <p class="mb-0">Создайте свою первую привычку!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="fixed-bottom d-flex justify-content-center mb-4">
+    <a class="btn btn-primary btn-lg shadow create-btn" href="{% url 'habits:habits_create' %}" role="button">
+        <i class="bi bi-plus-circle"></i>
+        Создать интересную привычку
+    </a>
+</div>
+
+<style>
+.section-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.habit-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(139, 115, 85, 0.15);
+    transition: all 0.3s ease;
+    background: transparent;
+    height: 380px;
+}
+
+.habit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(139, 115, 85, 0.25);
+}
+
+.habit-image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.habit-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.habit-no-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--beige-primary) 0%, var(--beige-dark) 100%);
+}
+
+.habit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 30%,
+        rgba(0, 0, 0, 0.4) 60%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.75rem;
+    color: white;
+}
+
+.habit-content {
+    width: 100%;
+}
+
+.habit-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    line-height: 1.3;
+}
+
+.habit-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    opacity: 0.95;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.habit-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.habit-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+}
+
+.habit-meta-item i {
+    font-size: 0.9rem;
+    width: 16px;
+}
+
+.habit-meta-item small {
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.habit-actions .btn {
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid white;
+    color: var(--terracotta-primary);
+    transition: all 0.3s ease;
+}
+
+.habit-actions .btn:hover {
+    background: white;
+    color: var(--terracotta-dark);
+    transform: translateY(-2px);
+}
+
+.create-btn {
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--terracotta-primary) 0%, var(--terracotta-dark) 100%);
+    border: 2px solid var(--terracotta-primary);
+    box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+    transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+    background: linear-gradient(135deg, var(--terracotta-light) 0%, var(--terracotta-primary) 100%);
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+    background: var(--beige-lighter);
+    color: var(--text-dark);
+}
+
+/* Для карточек без фото */
+.habit-no-image + .habit-overlay {
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(139, 115, 85, 0.6) 50%,
+        rgba(107, 93, 77, 0.8) 100%
+    );
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .habit-card {
+        height: 350px;
+    }
+
+    .habit-overlay {
+        padding: 1.5rem;
+    }
+
+    .habit-title {
+        font-size: 1.2rem;
+    }
+
+    .create-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .habit-card {
+        height: 320px;
+    }
+
+    .habit-overlay {
+        padding: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.7rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .col-sm-6 {
+        margin-bottom: 1rem;
+    }
+
+    .create-btn {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+}
+</style>
 {% endblock %}

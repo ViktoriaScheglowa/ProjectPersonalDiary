@@ -1,78 +1,111 @@
 {% extends 'base.html' %}
 {% load my_tags %}
-{% block title %}Детали момента{% endblock %}
+{% block title %}{{ moment.title|default:"Детали момента" }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h1 class="section-title mb-0">{{ moment.title }}</h1>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <small class="text-muted">
-                            Создан: {{ moment.created_at|date:"d.m.Y H:i" }}
-                        </small>
-                        {% if moment.is_public %}
-                        <span class="badge bg-success">Публичный</span>
-                        {% else %}
-                        <span class="badge bg-secondary">Приватный</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="card-body">
+        <div class="col-12 col-lg-10">
+            <!-- Единая карточка с фото и деталями -->
+            <div class="card moment-detail-card">
+                <div class="moment-detail-container">
                     {% if moment.photo %}
-                    <div class="mb-4">
-                        <div class="moment-image-container mb-3" style="height: 400px;">
-                            <img src="{{ moment.photo.url }}" alt="{{ moment.title }}" class="moment-image">
+                    <img src="{{ moment.photo.url }}"
+                         alt="{{ moment.title|default:'Момент' }}"
+                         class="moment-detail-image">
+                    {% else %}
+                    <div class="moment-no-detail-image bg-light"></div>
+                    {% endif %}
+
+                    <div class="moment-detail-overlay">
+                        <div class="moment-detail-content">
+                            <!-- Заголовок и мета-информация в левом нижнем углу -->
+                            <div class="moment-detail-header">
+                                <h1 class="moment-detail-title">{{ moment.title|default:"Без названия" }}</h1>
+                                <div class="moment-detail-meta">
+                                    <div class="moment-detail-meta-item">
+                                        <i class="bi bi-person"></i>
+                                        <span>{{ moment.owner }}</span>
+                                    </div>
+                                    <div class="moment-detail-meta-item">
+                                        <i class="bi bi-calendar"></i>
+                                        <span>{{ moment.created_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    <div class="moment-detail-meta-item">
+                                        {% if moment.is_public %}
+                                        <i class="bi bi-globe"></i>
+                                        <span>Публичный</span>
+                                        {% else %}
+                                        <i class="bi bi-lock"></i>
+                                        <span>Приватный</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Детальная информация - компактная -->
+                            <div class="moment-detail-info">
+                                {% if moment.location %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-geo-alt"></i>
+                                        <span class="detail-item-title">Место</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ moment.location }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if moment.comments %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-chat-text"></i>
+                                        <span class="detail-item-title">Комментарии</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ moment.comments|linebreaks }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if moment.video %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-camera-video"></i>
+                                        <span class="detail-item-title">Видео</span>
+                                    </div>
+                                    <div class="video-container">
+                                        <video controls class="moment-video">
+                                            <source src="{{ moment.video.url }}" type="video/mp4">
+                                            Ваш браузер не поддерживает видео тег.
+                                        </video>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Кнопки действий -->
+                            <div class="moment-detail-actions">
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if user.is_authenticated and user == moment.owner %}
+                                    <a href="{% url 'moments:moments_list' %}" class="btn btn-secondary btn-detail-action">
+                                        <i class="bi bi-arrow-left"></i>
+                                        Назад
+                                    </a>
+                                    <a href="{% url 'moments:moments_update' moment.pk %}" class="btn btn-primary btn-detail-action">
+                                        <i class="bi bi-pencil"></i>
+                                        Редактировать
+                                    </a>
+                                    <a href="{% url 'moments:moments_delete' moment.pk %}" class="btn btn-danger btn-detail-action">
+                                        <i class="bi bi-trash"></i>
+                                        Удалить
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'moments:public_moments_list' %}" class="btn btn-secondary btn-detail-action">
+                                        <i class="bi bi-arrow-left"></i>
+                                        Назад
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    {% endif %}
-
-                    {% if moment.video %}
-                    <div class="mb-4">
-                        <h5>Видео</h5>
-                        <video controls class="w-100" style="max-height: 400px;">
-                            <source src="{{ moment.video.url }}" type="video/mp4">
-                            Ваш браузер не поддерживает видео тег.
-                        </video>
-                    </div>
-                    {% endif %}
-
-                    <div class="mb-3">
-                        <h5>Место</h5>
-                        <p class="fs-6">{{ moment.location }}</p>
-                    </div>
-
-                    {% if moment.comments %}
-                    <div class="mb-3">
-                        <h5>Комментарии</h5>
-                        <p class="fs-6">{{ moment.comments|linebreaks }}</p>
-                    </div>
-                    {% endif %}
-
-                    <div class="mb-3">
-                        <h5>Владелец</h5>
-                        <p class="fs-6">{{ moment.owner }}</p>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        {% if user.is_authenticated and user == moment.owner %}
-                        <a href="{% url 'moments:moments_list' %}" class="btn btn-secondary">
-                            ← Назад к списку
-                        </a>
-                        <a href="{% url 'moments:moments_update' moment.pk %}" class="btn btn-primary">
-                            Редактировать
-                        </a>
-                        <a href="{% url 'moments:moments_delete' moment.pk %}" class="btn btn-danger">
-                            Удалить
-                        </a>
-                        {% else %}
-                        <a href="{% url 'moments:public_moments_list' %}" class="btn btn-secondary">
-                            ← Назад к списку
-                        </a>
-                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -81,48 +114,285 @@
 </div>
 
 <style>
-.section-title {
-    color: #333;
-    font-weight: 600;
+.moment-detail-card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(139, 115, 85, 0.25);
+    background: transparent;
+    min-height: 600px;
 }
 
-.moment-image-container {
+.moment-detail-container {
+    position: relative;
     width: 100%;
+    min-height: 600px;
     overflow: hidden;
+    border-radius: 20px;
+}
+
+.moment-detail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.moment-no-detail-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--beige-primary) 0%, var(--beige-dark) 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.moment-detail-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.4) 70%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+    color: white;
+}
+
+.moment-detail-content {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Заголовок и мета-информация - компактные */
+.moment-detail-header {
+    margin-bottom: 1.5rem;
+}
+
+.moment-detail-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: white;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+    line-height: 1.2;
+}
+
+.moment-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.moment-detail-meta-item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.moment-detail-meta-item i {
+    font-size: 0.9rem;
+}
+
+/* Детальная информация - компактная */
+.moment-detail-info {
+    margin-bottom: 1.5rem;
+}
+
+.detail-item {
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.moment-image {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+.detail-item:last-child {
+    margin-bottom: 0;
 }
 
-.card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border: none;
-    border-radius: 12px;
+.detail-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 12px 12px 0 0 !important;
+.detail-item-header i {
+    font-size: 0.9rem;
+    color: var(--beige-light);
 }
 
-.btn {
+.detail-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.detail-item-content {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Видео */
+.video-container {
     border-radius: 6px;
-    font-weight: 500;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
 }
 
-.badge {
-    font-size: 0.75rem;
+.moment-video {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    background: black;
+}
+
+/* Кнопки действий - компактные */
+.moment-detail-actions {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-detail-action {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: var(--terracotta-primary);
+    text-shadow: none;
+}
+
+.btn-detail-action:hover {
+    transform: translateY(-2px);
+    background: white;
+    border-color: white;
+    color: var(--terracotta-dark);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-detail-action.btn-secondary {
+    background: rgba(108, 117, 125, 0.9);
+    border-color: rgba(108, 117, 125, 0.9);
+    color: white;
+}
+
+.btn-detail-action.btn-secondary:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-detail-action.btn-danger {
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 0.9);
+    color: white;
+}
+
+.btn-detail-action.btn-danger:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .moment-detail-container {
+        min-height: 500px;
+    }
+
+    .moment-detail-overlay {
+        padding: 1.5rem;
+    }
+
+    .moment-detail-title {
+        font-size: 1.5rem;
+    }
+
+    .moment-detail-meta {
+        gap: 0.8rem;
+    }
+
+    .moment-detail-meta-item {
+        font-size: 0.85rem;
+    }
+
+    .detail-item {
+        padding: 0.7rem;
+    }
+
+    .detail-item-title {
+        font-size: 0.85rem;
+    }
+
+    .detail-item-content {
+        font-size: 0.8rem;
+    }
+
+    .moment-video {
+        max-height: 150px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .moment-detail-container {
+        min-height: 450px;
+    }
+
+    .moment-detail-overlay {
+        padding: 1rem;
+    }
+
+    .moment-detail-title {
+        font-size: 1.3rem;
+    }
+
+    .moment-detail-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-detail-action {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .moment-detail-actions .d-flex {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
 }
 </style>
 {% endblock %}

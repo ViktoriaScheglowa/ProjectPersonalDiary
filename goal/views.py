@@ -38,8 +38,8 @@ class GoalListView(LoginRequiredMixin, ListView):
 class GoalCreateView(LoginRequiredMixin, CreateView):
     model = Goal
     form_class = GoalForms
-    template_name = 'goal/form.html'
-    success_url = reverse_lazy('goal:my_goal_list')
+    template_name = 'goal/goal_form.html'
+    success_url = reverse_lazy('goal:goal_list')
 
     def form_valid(self, form):
         print(f"DEBUG: Setting owner to {self.request.user}")
