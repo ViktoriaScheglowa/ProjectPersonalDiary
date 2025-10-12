@@ -4,7 +4,40 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="section-title">Мои интересные мысли</h1>
+    <!-- Заголовок и счетчик -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="section-title mb-0">Мои интересные мысли</h1>
+                <span class="badge bg-beige fs-6 px-3 py-2 rounded-pill">
+                    <i class="bi bi-chat-square-text me-1"></i>{{ paginator.count }} мыслей
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Поисковая форма -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="get" class="search-form">
+                <div class="input-group input-group-lg shadow-sm">
+                    <input type="text"
+                           name="search"
+                           class="form-control border-beige"
+                           placeholder="Поиск по заголовку и содержимому..."
+                           value="{{ search_query }}">
+                    <button class="btn btn-beige px-4" type="submit">
+                        <i class="bi bi-search me-2"></i>Найти
+                    </button>
+                    {% if search_query %}
+                    <a href="{% url 'idea:idea_list' %}" class="btn btn-outline-beige px-3">
+                        <i class="bi bi-x-circle me-1"></i>Сбросить
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
 
     {% if idea %}
     <div class="row">
@@ -63,6 +96,11 @@
                                    role="button">
                                     Подробности
                                 </a>
+                                <a class="btn btn-outline-secondary btn-sm"
+                                   href="{% url 'idea:idea_update' item.pk %}"
+                                   role="button">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -119,12 +157,17 @@
 
     {% else %}
     <div class="alert alert-info text-center py-4">
+        {% if search_query %}
+        <h4 class="mb-3">По запросу "{{ search_query }}" ничего не найдено</h4>
+        <p class="mb-0">Попробуйте изменить поисковый запрос</p>
+        {% else %}
         <h4 class="mb-3">У вас пока нет интересных мыслей</h4>
         <p class="mb-3">Начните записывать свои идеи и размышления!</p>
         <a class="btn btn-primary btn-lg" href="{% url 'idea:idea_create' %}" role="button">
             <i class="bi bi-plus-circle"></i>
             Создать первую мысль
         </a>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -137,6 +180,38 @@
 </div>
 
 <style>
+.btn-custom-beige {
+    background: linear-gradient(135deg, #a67c52, #c19a6b) !important;
+    border: 2px solid #8b5a2b !important;
+    color: #2c1d0e !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+
+.btn-custom-beige:hover {
+    background: linear-gradient(135deg, #8b5a2b, #a67c52) !important;
+    border-color: #6b4c2a !important;
+    color: #2c1d0e !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(139, 90, 43, 0.4) !important;
+}
+
+.badge-custom-beige {
+    background: linear-gradient(135deg, #a67c52, #c19a6b) !important;
+    color: #2c1d0e !important;
+    border: 2px solid #8b5a2b !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+}
+
+.border-custom-beige {
+    border-color: #a67c52 !important;
+}
+
+.border-custom-beige:focus {
+    border-color: #8b5a2b !important;
+    box-shadow: 0 0 0 0.3rem rgba(166, 124, 82, 0.25) !important;
+}
 .section-title {
     color: var(--text-dark);
     font-weight: 700;

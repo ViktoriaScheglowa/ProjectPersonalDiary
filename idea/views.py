@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -28,17 +29,42 @@ class IdeaListView(LoginRequiredMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return Myidea.objects.filter(owner=self.request.user)
+        queryset = Myidea.objects.filter(owner=self.request.user)
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search_query) |
+                models.Q(comments__icontains=search_query)
+            )
 
-
-class PublicIdeaTemplateView(TemplateView):
-    template_name = 'idea/public_idea_list.html'
+        return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        ideas = Myidea.objects.filter(is_public=True)
-        print(f"Found {len(ideas)} public ideas")  # Для отладки
-        context['ideas'] = ideas
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
+
+class PublicIdeaTemplateView(ListView):
+    model = Myidea
+    template_name = 'idea/public_idea_list.html'
+    context_object_name = 'ideas'
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = Myidea.objects.filter(is_public=True)
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search_query) |
+                models.Q(comments__icontains=search_query)
+            )
+
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
         return context
 
 

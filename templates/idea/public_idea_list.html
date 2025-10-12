@@ -4,8 +4,40 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="section-title">Публичные мысли</h1>
+    <!-- Заголовок и счетчик -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="section-title mb-0">Публичные мысли</h1>
+                <span class="badge bg-beige fs-6 px-3 py-2 rounded-pill">
+                    <i class="bi bi-chat-square-text me-1"></i>{{ paginator.count }} мыслей
+                </span>
+            </div>
+        </div>
+    </div>
 
+    <!-- Поисковая форма -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="get" class="search-form">
+                <div class="input-group input-group-lg shadow-sm">
+                    <input type="text"
+                           name="search"
+                           class="form-control border-beige"
+                           placeholder="Поиск по публичным мыслям..."
+                           value="{{ search_query }}">
+                    <button class="btn btn-beige px-4" type="submit">
+                        <i class="bi bi-search me-2"></i>Найти
+                    </button>
+                    {% if search_query %}
+                    <a href="{% url 'idea:public_idea_list' %}" class="btn btn-outline-beige px-3">
+                        <i class="bi bi-x-circle me-1"></i>Сбросить
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
     {% if ideas %}
     <div class="row">
         {% for idea in ideas %}
@@ -75,12 +107,17 @@
 
     {% else %}
     <div class="alert alert-info text-center py-4">
+        {% if search_query %}
+        <h4 class="mb-3">По запросу "{{ search_query }}" ничего не найдено</h4>
+        <p class="mb-0">Попробуйте изменить поисковый запрос</p>
+        {% else %}
         <h4 class="mb-3">Публичные мысли отсутствуют</h4>
         <p class="mb-3">Пока никто не поделился своими мыслями с общественностью.</p>
         {% if user.is_authenticated %}
         <p class="mb-0">Вы можете быть первым - создайте мысль и отметьте её как публичную!</p>
         {% else %}
         <p class="mb-0"><a href="{% url 'login' %}">Войдите</a>, чтобы создать свою мысль и поделиться ею.</p>
+        {% endif %}
         {% endif %}
     </div>
     {% endif %}
