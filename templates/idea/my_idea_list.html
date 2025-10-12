@@ -6,51 +6,60 @@
 <div class="container mt-4">
     <h1 class="section-title">Мои интересные мысли</h1>
 
-    {% if ideas %}
+    {% if idea %}
     <div class="row">
-        {% for idea in ideas %}
+        {% for item in idea %}
         <div class="col-12 col-sm-6 col-lg-4 mb-4">
             <div class="card idea-card">
                 <div class="idea-image-container">
-                    {% if idea.photo %}
-                    <img src="{{ idea.photo.url }}"
-                         alt="{{ idea.title|default:'Мысль' }}"
+                    {% if item.pictures %}
+                    <img src="{{ item.pictures.url }}"
+                         alt="{{ item.title|default:'Мысль' }}"
                          class="idea-image">
                     {% else %}
-                    <div class="idea-no-image bg-light"></div>
+                    <div class="idea-no-image bg-light d-flex align-items-center justify-content-center">
+                        <div class="text-center text-muted">
+                            <i class="bi bi-image" style="font-size: 2rem;"></i>
+                            <p class="mt-2 mb-0 small">Нет изображения</p>
+                        </div>
+                    </div>
                     {% endif %}
 
                     <div class="idea-overlay">
                         <div class="idea-content">
-                            <h5 class="idea-title">{{ idea.title|default:"Без названия" }}</h5>
+                            <h5 class="idea-title">{{ item.title|default:"Без названия" }}</h5>
 
-                            {% if idea.comments %}
-                            <p class="idea-description">{{ idea.comments|truncatewords:15 }}</p>
+                            {% if item.comments %}
+                            <p class="idea-description">{{ item.comments|truncatewords:15 }}</p>
+                            {% else %}
+                            <p class="idea-description text-muted">Нет комментариев</p>
                             {% endif %}
 
                             <div class="idea-meta">
                                 <div class="idea-meta-item">
-                                    <i class="bi bi-geo-alt"></i>
-                                    <small>{{ idea.location|default:"Место не указано" }}</small>
-                                </div>
-                                <div class="idea-meta-item">
                                     <i class="bi bi-calendar"></i>
-                                    <small>{{ idea.created_at|date:"d.m.Y H:i" }}</small>
+                                    <small>{{ item.created_at|date:"d.m.Y H:i" }}</small>
                                 </div>
+                                {% if item.update_at != item.created_at %}
                                 <div class="idea-meta-item">
-                                    {% if idea.is_public %}
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    <small>Обновлено: {{ item.update_at|date:"d.m.Y" }}</small>
+                                </div>
+                                {% endif %}
+                                <div class="idea-meta-item">
+                                    {% if item.is_public %}
                                     <i class="bi bi-globe text-success"></i>
-                                    <small class="text-success">Публичный</small>
+                                    <small class="text-success">Публичная</small>
                                     {% else %}
                                     <i class="bi bi-lock text-secondary"></i>
-                                    <small class="text-secondary">Приватный</small>
+                                    <small class="text-secondary">Приватная</small>
                                     {% endif %}
                                 </div>
                             </div>
 
                             <div class="idea-actions">
                                 <a class="btn btn-primary btn-sm"
-                                   href="{% url 'idea:idea_detail' idea.pk %}"
+                                   href="{% url 'idea:idea_detail' item.pk %}"
                                    role="button">
                                     Подробности
                                 </a>
@@ -62,10 +71,60 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Пагинация -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
     {% else %}
     <div class="alert alert-info text-center py-4">
         <h4 class="mb-3">У вас пока нет интересных мыслей</h4>
-        <p class="mb-0">Создайте свою первую мысль!</p>
+        <p class="mb-3">Начните записывать свои идеи и размышления!</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'idea:idea_create' %}" role="button">
+            <i class="bi bi-plus-circle"></i>
+            Создать первую мысль
+        </a>
     </div>
     {% endif %}
 </div>

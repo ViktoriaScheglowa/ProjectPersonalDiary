@@ -9,12 +9,15 @@
             <!-- Единая карточка с фото и деталями -->
             <div class="card idea-detail-card">
                 <div class="idea-detail-container">
-                    {% if idea.photo %}
-                    <img src="{{ idea.photo.url }}"
+                    {% if idea.pictures %}
+                    <img src="{{ idea.pictures.url }}"
                          alt="{{ idea.title|default:'Мысль' }}"
                          class="idea-detail-image">
                     {% else %}
-                    <div class="idea-no-detail-image bg-light"></div>
+                    <div class="idea-no-detail-image bg-light">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Нет изображения</p>
+                    </div>
                     {% endif %}
 
                     <div class="idea-detail-overlay">
@@ -25,19 +28,31 @@
                                 <div class="idea-detail-meta">
                                     <div class="idea-detail-meta-item">
                                         <i class="bi bi-person"></i>
-                                        <span>{{ idea.owner }}</span>
+                                        <span>
+                                            {% if idea.owner %}
+                                                {{ idea.owner }}
+                                            {% else %}
+                                                Анонимный пользователь
+                                            {% endif %}
+                                        </span>
                                     </div>
                                     <div class="idea-detail-meta-item">
                                         <i class="bi bi-calendar"></i>
                                         <span>{{ idea.created_at|date:"d.m.Y H:i" }}</span>
                                     </div>
+                                    {% if idea.update_at != idea.created_at %}
+                                    <div class="idea-detail-meta-item">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        <span>Обновлено: {{ idea.update_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    {% endif %}
                                     <div class="idea-detail-meta-item">
                                         {% if idea.is_public %}
-                                        <i class="bi bi-globe"></i>
-                                        <span>Публичный</span>
+                                        <i class="bi bi-globe text-success"></i>
+                                        <span class="text-success">Публичная</span>
                                         {% else %}
-                                        <i class="bi bi-lock"></i>
-                                        <span>Приватный</span>
+                                        <i class="bi bi-lock text-secondary"></i>
+                                        <span class="text-secondary">Приватная</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -45,16 +60,6 @@
 
                             <!-- Детальная информация - компактная -->
                             <div class="idea-detail-info">
-                                {% if idea.location %}
-                                <div class="detail-item">
-                                    <div class="detail-item-header">
-                                        <i class="bi bi-geo-alt"></i>
-                                        <span class="detail-item-title">Место</span>
-                                    </div>
-                                    <p class="detail-item-content">{{ idea.location }}</p>
-                                </div>
-                                {% endif %}
-
                                 {% if idea.comments %}
                                 <div class="detail-item">
                                     <div class="detail-item-header">
@@ -63,22 +68,17 @@
                                     </div>
                                     <p class="detail-item-content">{{ idea.comments|linebreaks }}</p>
                                 </div>
-                                {% endif %}
-
-                                {% if idea.video %}
+                                {% else %}
                                 <div class="detail-item">
                                     <div class="detail-item-header">
-                                        <i class="bi bi-camera-video"></i>
-                                        <span class="detail-item-title">Видео</span>
+                                        <i class="bi bi-chat-text"></i>
+                                        <span class="detail-item-title">Комментарии</span>
                                     </div>
-                                    <div class="video-container">
-                                        <video controls class="idea-video">
-                                            <source src="{{ idea.video.url }}" type="video/mp4">
-                                            Ваш браузер не поддерживает видео тег.
-                                        </video>
-                                    </div>
+                                    <p class="detail-item-content text-muted">Нет комментариев</p>
                                 </div>
                                 {% endif %}
+
+                                <!-- Убраны блоки location и video, так как их нет в модели -->
                             </div>
 
                             <!-- Кнопки действий -->
@@ -87,7 +87,7 @@
                                     {% if user.is_authenticated and user == idea.owner %}
                                     <a href="{% url 'idea:idea_list' %}" class="btn btn-secondary btn-detail-action">
                                         <i class="bi bi-arrow-left"></i>
-                                        Назад
+                                        К моим мыслям
                                     </a>
                                     <a href="{% url 'idea:idea_update' idea.pk %}" class="btn btn-primary btn-detail-action">
                                         <i class="bi bi-pencil"></i>
@@ -100,7 +100,7 @@
                                     {% else %}
                                     <a href="{% url 'idea:public_idea_list' %}" class="btn btn-secondary btn-detail-action">
                                         <i class="bi bi-arrow-left"></i>
-                                        Назад
+                                        К публичным мыслям
                                     </a>
                                     {% endif %}
                                 </div>

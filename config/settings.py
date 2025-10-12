@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from celery.schedules import crontab
 
 from dotenv import load_dotenv
 
@@ -164,6 +165,10 @@ REDIS_URL = os.getenv("REDIS_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = False
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
@@ -173,6 +178,14 @@ CELERY_BEAT_SCHEDULE = {
     "send_reminder_with_bot": {
         "task": "habits.tasks.send_reminder_with_bot",
         "schedule": timedelta(days=1),
+    },
+    'check-habits-every-minute': {
+        'task': 'habits.tasks.check_habits_for_notification',
+        'schedule': crontab(minute='*'),
+    },
+    'reset-notifications-daily': {
+        'task': 'habits.tasks.reset_notification_status',
+        'schedule': crontab(hour=0, minute=0),
     },
 }
 

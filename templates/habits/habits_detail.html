@@ -1,17 +1,16 @@
 {% extends 'base.html' %}
 {% load my_tags %}
-{% block title %}{{ habit.title|default:"Детали привычки" }}{% endblock %}
+{% block title %}{{ habit.action|default:"Детали привычки" }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
-            <!-- Единая карточка с фото и деталями -->
             <div class="card habit-detail-card">
                 <div class="habit-detail-container">
-                    {% if mhabit.photo %}
+                    {% if habit.photo %}
                     <img src="{{ habit.photo.url }}"
-                         alt="{{ habit.title|default:'Привычка' }}"
+                         alt="{{ habit.action|default:'Привычка' }}"
                          class="habit-detail-image">
                     {% else %}
                     <div class="habit-no-detail-image bg-light"></div>
@@ -19,17 +18,16 @@
 
                     <div class="habit-detail-overlay">
                         <div class="habit-detail-content">
-                            <!-- Заголовок и мета-информация в левом нижнем углу -->
                             <div class="habit-detail-header">
-                                <h1 class="habit-detail-title">{{ habit.title|default:"Без названия" }}</h1>
+                                <h1 class="habit-detail-title">{{ habit.action|default:"Без названия" }}</h1>
                                 <div class="habit-detail-meta">
                                     <div class="habit-detail-meta-item">
                                         <i class="bi bi-person"></i>
-                                        <span>{{ habit.owner }}</span>
+                                        <span>{{ habit.owner.username|default:"Неизвестно" }}</span>
                                     </div>
                                     <div class="habit-detail-meta-item">
                                         <i class="bi bi-calendar"></i>
-                                        <span>{{ habit.created_at|date:"d.m.Y H:i" }}</span>
+                                        <span>{{ habit.date_deadline|date:"d.m.Y" }} в {{ habit.time_deadline|time:"H:i" }}</span>
                                     </div>
                                     <div class="habit-detail-meta-item">
                                         {% if habit.is_public %}
@@ -40,20 +38,36 @@
                                         <span>Приватная</span>
                                         {% endif %}
                                     </div>
+                                    <div class="habit-detail-meta-item">
+                                        {% if habit.is_enjoyable %}
+                                        <i class="bi bi-emoji-smile"></i>
+                                        <span>Приятная привычка</span>
+                                        {% else %}
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Полезная привычка</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Детальная информация - компактная -->
                             <div class="habit-detail-info">
                                 {% if habit.location %}
                                 <div class="detail-item">
                                     <div class="detail-item-header">
                                         <i class="bi bi-geo-alt"></i>
-                                        <span class="detail-item-title">Место</span>
+                                        <span class="detail-item-title">Место выполнения</span>
                                     </div>
                                     <p class="detail-item-content">{{ habit.location }}</p>
                                 </div>
                                 {% endif %}
+
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-lightning"></i>
+                                        <span class="detail-item-title">Действие</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ habit.action }}</p>
+                                </div>
 
                                 {% if habit.comments %}
                                 <div class="detail-item">
@@ -64,6 +78,58 @@
                                     <p class="detail-item-content">{{ habit.comments|linebreaks }}</p>
                                 </div>
                                 {% endif %}
+
+                                {% if habit.associated_habit %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-link"></i>
+                                        <span class="detail-item-title">Связанная привычка</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ habit.associated_habit.action }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if habit.reward %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-gift"></i>
+                                        <span class="detail-item-title">Вознаграждение</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ habit.reward }}</p>
+                                </div>
+                                {% endif %}
+
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                        <span class="detail-item-title">Периодичность</span>
+                                    </div>
+                                    <p class="detail-item-content">Каждые {{ habit.periodicity }} дней</p>
+                                </div>
+
+                                {% if habit.time_to_complete %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-clock"></i>
+                                        <span class="detail-item-title">Время на выполнение</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ habit.time_to_complete }} минут</p>
+                                </div>
+                                {% endif %}
+
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-power"></i>
+                                        <span class="detail-item-title">Статус</span>
+                                    </div>
+                                    <p class="detail-item-content">
+                                        {% if habit.is_active %}
+                                        <span class="text-success">Активна</span>
+                                        {% else %}
+                                        <span class="text-danger">Неактивна</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
 
                                 {% if habit.video %}
                                 <div class="detail-item">
@@ -81,13 +147,12 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Кнопки действий -->
                             <div class="habit-detail-actions">
                                 <div class="d-flex flex-wrap gap-2">
                                     {% if user.is_authenticated and user == habit.owner %}
                                     <a href="{% url 'habits:habits_list' %}" class="btn btn-secondary btn-detail-action">
                                         <i class="bi bi-arrow-left"></i>
-                                        Назад
+                                        Назад к моим привычкам
                                     </a>
                                     <a href="{% url 'habits:habits_update' habit.pk %}" class="btn btn-primary btn-detail-action">
                                         <i class="bi bi-pencil"></i>
@@ -100,7 +165,7 @@
                                     {% else %}
                                     <a href="{% url 'habits:public_habits_list' %}" class="btn btn-secondary btn-detail-action">
                                         <i class="bi bi-arrow-left"></i>
-                                        Назад
+                                        Назад к публичным привычкам
                                     </a>
                                     {% endif %}
                                 </div>

@@ -14,6 +14,20 @@ class Habit(models.Model):
         verbose_name="Место",
         help_text="Место, в котором необходимо выполнять привычку",
     )
+    photo = models.ImageField(
+        upload_to='media/photos',
+        blank=True,
+        null=True,
+        verbose_name='Фото',
+        help_text="Загрузите фото интересного события"
+    )
+    video = models.FileField(
+        upload_to='media/videos',
+        blank=True,
+        null=True,
+        verbose_name="Видео",
+        help_text="Загрузите видео интересного события"
+    )
     date_deadline = models.DateField(
         default=timezone.now,
         verbose_name="Дата выполнения привычки",
@@ -27,6 +41,11 @@ class Habit(models.Model):
         max_length=50,
         verbose_name="Действие",
         help_text="Действие, которое представляет собой привычка",
+    )
+    comments = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name='Коментарий'
     )
     is_enjoyable = models.BooleanField(
         verbose_name="Признак приятной привычки",
@@ -64,6 +83,17 @@ class Habit(models.Model):
         verbose_name="Признак публичности",
         help_text="Привычки можно публиковать в общий доступ, чтобы другие пользователи могли брать в пример Ваши "
         "привычки",
+    )
+    telegram_chat_id = models.CharField(
+        max_length=20,
+        verbose_name="Telegram Chat ID",
+        blank=True,
+        null=True
+    )
+
+    notification_sent = models.BooleanField(
+        default=False,
+        verbose_name="Уведомление отправлено"
     )
     is_active = models.BooleanField(verbose_name="Признак активности", default=True)
 

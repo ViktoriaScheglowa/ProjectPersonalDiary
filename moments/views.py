@@ -70,6 +70,17 @@ class MomentsDeleteView(LoginRequiredMixin, DeleteView):
         return Moment.objects.filter(owner=self.request.user)
 
 
+class PublicMomentsTemplateView(TemplateView):
+    template_name = 'moments/public_moments_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        moments = Moment.objects.filter(is_public=True)
+        print(f"Found {len(moments)} public moments")  # Для отладки
+        context['moments'] = moments
+        return context
+
+
 # API Views (оставляем для API)
 @method_decorator(
     name="get",
@@ -92,15 +103,7 @@ class MomentsListAPIView(ListAPIView):
         operation_summary="Список публичных моментов",
     ),
 )
-class PublicMomentsTemplateView(TemplateView):
-    template_name = 'moments/public_moments_list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        moments = Moment.objects.filter(is_public=True)
-        print(f"Found {len(moments)} public moments")  # Для отладки
-        context['moments'] = moments
-        return context
 
 
 class MomentsCreateAPIView(CreateAPIView):

@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 import requests
 from config.settings import TELEGRAM_BOT_TOKEN, TELEGRAM_URL
+from user.models import User
 
 
 class Command(BaseCommand):
@@ -50,6 +51,9 @@ class Command(BaseCommand):
                             )
                         )
 
+                # Отправка тестового сообщения пользователям с chat_id
+                self.send_test_messages()
+
             else:
                 self.stdout.write(
                     self.style.ERROR(
@@ -61,3 +65,56 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR(f"❌ Ошибка: {e}")
             )
+
+    def send_test_messages(self):
+        """Отправка тестовых сообщений пользователям с chat_id"""
+        users_with_chat_id = User.objects.exclude(chat_id__isnull=True).exclude(chat_id='')
+
+        if users_with_chat_id.exists():
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"\n📤 Найдено {users_with_chat_id.count()} пользователей с chat_id. Отправка тестовых сообщений..."
+                )
+            )
+
+            for user in users_with_chat_id:
+                success = self.send_telegram_message(
+                    user.chat_id,
+                    "✅ Тестовое сообщение от вашего бота!\n"
+                    "Это подтверждает, что уведомления работают корректно."
+                )
+                if success:
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"   ✅ Сообщение отправлено пользователю {user.email} (Chat ID: {user.chat_id})"
+                        )
+                    )
+                else:
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"   ❌ Ошибка отправки пользователю {user.email} (Chat ID: {user.chat_id})"
+                        )
+                    )
+        else:
+            self.stdout.write(
+                self.style.WARNING(
+                    "\nℹ️  Пользователей с chat_id не найдено. "
+                    "Добавьте chat_id пользователям в админке."
+                )
+            )
+
+    def send_telegram_message(self, chat_id, message):
+        """Отправка сообщения в Telegram"""
+        try:
+            url = f"{TELEGRAM_URL}{TELEGRAM_BOT_TOKEN}/sendMessage"
+            params = {
+                "chat_id": chat_id,
+                "text": message,
+                "parse_mode": "HTML"
+            }
+            response = requests.post(url, json=params, timeout=10)
+            response.raise_for_status()
+            return True
+        except Exception as e:
+            print(f"Ошибка отправки Telegram сообщения: {e}")
+            return False

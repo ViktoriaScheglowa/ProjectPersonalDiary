@@ -12,12 +12,17 @@
         <div class="col-12 col-sm-6 col-lg-4 mb-4">
             <div class="card idea-card">
                 <div class="idea-image-container">
-                    {% if idea.photo %}
-                    <img src="{{ idea.photo.url }}"
+                    {% if idea.pictures %}
+                    <img src="{{ idea.pictures.url }}"
                          alt="{{ idea.title|default:'Мысль' }}"
                          class="idea-image">
                     {% else %}
-                    <div class="idea-no-image bg-light"></div>
+                    <div class="idea-no-image bg-light d-flex align-items-center justify-content-center">
+                        <div class="text-center text-muted">
+                            <i class="bi bi-image" style="font-size: 2rem;"></i>
+                            <p class="mt-2 mb-0 small">Нет изображения</p>
+                        </div>
+                    </div>
                     {% endif %}
 
                     <div class="idea-overlay">
@@ -26,23 +31,31 @@
 
                             {% if idea.comments %}
                             <p class="idea-description">{{ idea.comments|truncatewords:15 }}</p>
+                            {% else %}
+                            <p class="idea-description text-muted">Нет комментариев</p>
                             {% endif %}
 
                             <div class="idea-meta">
                                 <div class="idea-meta-item">
                                     <i class="bi bi-person"></i>
-                                    <small>Автор: {{ idea.owner }}</small>
+                                    <small>
+                                        {% if idea.owner %}
+                                            Автор: {{ idea.owner }}
+                                        {% else %}
+                                            Анонимный автор
+                                        {% endif %}
+                                    </small>
                                 </div>
-                                {% if idea.location %}
-                                <div class="idea-meta-item">
-                                    <i class="bi bi-geo-alt"></i>
-                                    <small>{{ idea.location }}</small>
-                                </div>
-                                {% endif %}
                                 <div class="idea-meta-item">
                                     <i class="bi bi-calendar"></i>
                                     <small>{{ idea.created_at|date:"d.m.Y H:i" }}</small>
                                 </div>
+                                {% if idea.update_at != idea.created_at %}
+                                <div class="idea-meta-item">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    <small>Обновлено: {{ idea.update_at|date:"d.m.Y" }}</small>
+                                </div>
+                                {% endif %}
                             </div>
 
                             <div class="idea-actions">
@@ -59,13 +72,28 @@
         </div>
         {% endfor %}
     </div>
+
     {% else %}
     <div class="alert alert-info text-center py-4">
         <h4 class="mb-3">Публичные мысли отсутствуют</h4>
-        <p class="mb-0">Будьте первым, кто поделится своей мыслью!</p>
+        <p class="mb-3">Пока никто не поделился своими мыслями с общественностью.</p>
+        {% if user.is_authenticated %}
+        <p class="mb-0">Вы можете быть первым - создайте мысль и отметьте её как публичную!</p>
+        {% else %}
+        <p class="mb-0"><a href="{% url 'login' %}">Войдите</a>, чтобы создать свою мысль и поделиться ею.</p>
+        {% endif %}
     </div>
     {% endif %}
 </div>
+
+{% if user.is_authenticated %}
+<div class="fixed-bottom d-flex justify-content-center mb-4">
+    <a class="btn btn-primary btn-lg shadow create-btn" href="{% url 'idea:idea_create' %}" role="button">
+        <i class="bi bi-plus-circle"></i>
+        Создать свою мысль
+    </a>
+</div>
+{% endif %}
 
 <style>
 .section-title {

@@ -31,7 +31,6 @@ class OffensiveWordValidator:
         )
 
 
-# Валидатор для условной длины (если значение есть)
 class ConditionalLengthValidator:
     """
     Валидатор, который срабатывает, только если значение не является пустой строкой или None.
@@ -43,7 +42,6 @@ class ConditionalLengthValidator:
             'Если вы оставили комментарий, он должен быть подробнее (минимум %(min_length)d символов).')
 
     def __call__(self, value):
-        # Проверяем, что значение существует (для строк: не None и не пустая строка)
         if value:
             if len(value) < self.min_length:
                 raise ValidationError(

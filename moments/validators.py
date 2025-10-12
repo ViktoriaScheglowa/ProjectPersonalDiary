@@ -11,9 +11,8 @@ class ValidateCreate:
     def __call__(self, attrs):
         value = attrs.get(self.created_at)
         if value is None:
-            return  # или: raise serializers.ValidationError({self.created_at: "Обязательное поле."})
+            return
 
-        # если приходит datetime, привести к дате с учётом таймзоны
         if isinstance(value, datetime):
             value = timezone.localtime(value).date()
 
