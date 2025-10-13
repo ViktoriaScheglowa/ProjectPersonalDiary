@@ -7,7 +7,12 @@ from idea.views import (
     IdeaCreateAPIView,
     IdeaUpdateAPIView,
     IdeaDestroyAPIView,
-    IdeaRetrieveAPIView, PublicIdeaTemplateView, IdeaListView, IdeaCreateView, IdeaUpdateView, IdeaDetailView,
+    IdeaRetrieveAPIView,
+    PublicIdeaTemplateView,
+    IdeaListView,
+    IdeaCreateView,
+    IdeaUpdateView,
+    IdeaDetailView,
     IdeaDeleteView,
 )
 
@@ -21,7 +26,6 @@ urlpatterns = [
     path("<int:pk>/update/", IdeaUpdateView.as_view(), name="idea_update"),
     path("<int:pk>/detail/", IdeaDetailView.as_view(), name="idea_detail"),
     path("<int:pk>/delete/", IdeaDeleteView.as_view(), name="idea_delete"),
-
     # API Views
     path("api/idea/", PublicIdeaTemplateView.as_view(), name="public_idea_api"),
     path("api/my/", IdeaListAPIView.as_view(), name="idea_list_api"),

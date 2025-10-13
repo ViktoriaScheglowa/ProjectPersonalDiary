@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from idea.models import Myidea
 from idea.validators import (
-    OffensiveWordValidator, ConditionalLengthValidator,
+    OffensiveWordValidator,
+    ConditionalLengthValidator,
 )
 
 
@@ -16,7 +17,7 @@ class IdeaSerializer(serializers.ModelSerializer):
             ),
             ConditionalLengthValidator(
                 comments="comments",
-            )
+            ),
         ]
         extra_kwargs = {"owner": {"read_only": True}}
 

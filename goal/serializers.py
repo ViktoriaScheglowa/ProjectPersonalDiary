@@ -4,7 +4,7 @@ from goal.models import Goal
 from goal.validators import (
     CheckGoalValidator,
     DateDeadlineGoalValidator,
-    )
+)
 
 
 class GoalSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class GoalSerializer(serializers.ModelSerializer):
                 is_public="is_public",
             ),
             DateDeadlineGoalValidator(date_deadline="date_deadline"),
-            ]
+        ]
         extra_kwargs = {"owner": {"read_only": True}}
 
 

@@ -6,23 +6,19 @@ from habits.tasks import send_test_message
 
 
 class Command(BaseCommand):
-    help = 'Тестирование отправки сообщений в Telegram'
+    help = "Тестирование отправки сообщений в Telegram"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--chat_id',
-            type=str,
-            help='Конкретный chat_id для тестирования'
+            "--chat_id", type=str, help="Конкретный chat_id для тестирования"
         )
         parser.add_argument(
-            '--user_id',
-            type=int,
-            help='ID пользователя для тестирования'
+            "--user_id", type=int, help="ID пользователя для тестирования"
         )
 
     def handle(self, *args, **options):
-        chat_id = options.get('chat_id')
-        user_id = options.get('user_id')
+        chat_id = options.get("chat_id")
+        user_id = options.get("user_id")
 
         if chat_id:
             # Тестируем конкретный chat_id
@@ -64,11 +60,15 @@ class Command(BaseCommand):
                     self.style.ERROR(f"❌ У пользователя {user.email} нет chat_id")
                 )
         except User.DoesNotExist:
-            self.stdout.write(self.style.ERROR(f"❌ Пользователь с ID {user_id} не найден"))
+            self.stdout.write(
+                self.style.ERROR(f"❌ Пользователь с ID {user_id} не найден")
+            )
 
     def test_all_users(self):
         """Тестирование всех пользователей с chat_id"""
-        users_with_chat_id = User.objects.exclude(chat_id__isnull=True).exclude(chat_id='')
+        users_with_chat_id = User.objects.exclude(chat_id__isnull=True).exclude(
+            chat_id=""
+        )
 
         if users_with_chat_id.exists():
             self.stdout.write(
@@ -79,7 +79,9 @@ class Command(BaseCommand):
 
             for user in users_with_chat_id:
                 self.stdout.write(
-                    self.style.WARNING(f"   Тестирование {user.email} (Chat ID: {user.chat_id})")
+                    self.style.WARNING(
+                        f"   Тестирование {user.email} (Chat ID: {user.chat_id})"
+                    )
                 )
                 self.test_specific_chat_id(user.chat_id)
         else:
@@ -91,11 +93,7 @@ class Command(BaseCommand):
         """Прямая отправка сообщения в Telegram"""
         try:
             url = f"{TELEGRAM_URL}{TELEGRAM_BOT_TOKEN}/sendMessage"
-            params = {
-                "chat_id": chat_id,
-                "text": message,
-                "parse_mode": "HTML"
-            }
+            params = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
             response = requests.post(url, json=params, timeout=10)
             response.raise_for_status()
             return True

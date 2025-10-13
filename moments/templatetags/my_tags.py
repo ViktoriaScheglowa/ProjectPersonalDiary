@@ -2,13 +2,16 @@ from django import template
 
 register = template.Library()
 
+
 @register.simple_tag
 def my_custom_tag():
     return "Hello from custom tag"
 
+
 @register.filter
 def my_custom_filter(value):
     return value
+
 
 @register.filter
 def media_filter(path):
@@ -17,25 +20,27 @@ def media_filter(path):
     Если путь пустой, возвращает пустую строку
     """
     if path:
-        return f'/media/{path}'
-    return ''
+        return f"/media/{path}"
+    return ""
+
 
 @register.filter
 def file_type(value):
     """Определяет тип файла по расширению"""
-    if hasattr(value, 'name'):
+    if hasattr(value, "name"):
         filename = value.name.lower()
-        if filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp')):
-            return 'image'
-        elif filename.endswith(('.mp4', '.avi', '.mov', '.wmv')):
-            return 'video'
-        elif filename.endswith(('.pdf', '.doc', '.docx')):
-            return 'document'
-    return 'unknown'
+        if filename.endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp")):
+            return "image"
+        elif filename.endswith((".mp4", ".avi", ".mov", ".wmv")):
+            return "video"
+        elif filename.endswith((".pdf", ".doc", ".docx")):
+            return "document"
+    return "unknown"
+
 
 @register.filter
 def file_size(value):
     """Возвращает размер файла в читаемом формате"""
-    if hasattr(value, 'size'):
+    if hasattr(value, "size"):
         return filesizeformat(value.size)
-    return ''
+    return ""

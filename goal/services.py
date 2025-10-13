@@ -11,11 +11,7 @@ def send_telegram_message(message, chat_id):
     """Отправка сообщения в Telegram"""
     try:
         url = f"{TELEGRAM_URL}{TELEGRAM_BOT_TOKEN}/sendMessage"
-        params = {
-            "chat_id": chat_id,
-            "text": message,
-            "parse_mode": "HTML"
-        }
+        params = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
         response = requests.post(url, json=params, timeout=10)
         response.raise_for_status()
         return True

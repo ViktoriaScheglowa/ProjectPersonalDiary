@@ -14,11 +14,7 @@ def send_telegram_message(message, chat_id):
     if isinstance(chat_id, str) and chat_id.isdigit():
         chat_id = int(chat_id)
 
-    payload = {
-        'chat_id': chat_id,
-        'text': message,
-        'parse_mode': 'HTML'
-    }
+    payload = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
 
     try:
         response = requests.post(url, json=payload, timeout=10)
@@ -44,8 +40,8 @@ def send_reminder_with_bot():
             date_deadline=today,
             time_deadline__hour=current_time.hour,
             time_deadline__minute=current_time.minute,
-            is_active=True
-        ).select_related('owner')
+            is_active=True,
+        ).select_related("owner")
 
         sent_count = 0
         error_count = 0
@@ -53,9 +49,9 @@ def send_reminder_with_bot():
         print(f"🔍 Проверка привычек в {current_time.strftime('%H:%M')}")
 
         for habit in habits:
-            chat_id = getattr(habit, 'telegram_chat_id', None)
-            if not chat_id and habit.owner and hasattr(habit.owner, 'profile'):
-                chat_id = getattr(habit.owner.profile, 'telegram_chat_id', None)
+            chat_id = getattr(habit, "telegram_chat_id", None)
+            if not chat_id and habit.owner and hasattr(habit.owner, "profile"):
+                chat_id = getattr(habit.owner.profile, "telegram_chat_id", None)
 
             if chat_id:
                 message = (
@@ -111,9 +107,9 @@ def check_habits_for_notification():
 def reset_notification_status():
     """Сброс статуса уведомлений для новых дней"""
     today = timezone.now().date()
-    updated = Habit.objects.filter(
-        date_deadline__lt=today
-    ).update(notification_sent=False)
+    updated = Habit.objects.filter(date_deadline__lt=today).update(
+        notification_sent=False
+    )
 
     print(f"🔄 Сброшено статусов уведомлений: {updated}")
 

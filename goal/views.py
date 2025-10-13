@@ -2,7 +2,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import (
+    TemplateView,
+    ListView,
+    CreateView,
+    UpdateView,
+    DetailView,
+    DeleteView,
+)
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -23,8 +30,8 @@ from goal.serializers import GoalSerializer, PublicListGoalSerializer
 
 class GoalListView(LoginRequiredMixin, ListView):
     model = Goal
-    template_name = 'goal/my_goal_list.html'
-    context_object_name = 'goals'
+    template_name = "goal/my_goal_list.html"
+    context_object_name = "goals"
     paginate_by = 5
 
     def get_queryset(self):
@@ -38,22 +45,24 @@ class GoalListView(LoginRequiredMixin, ListView):
 class GoalCreateView(LoginRequiredMixin, CreateView):
     model = Goal
     form_class = GoalForms
-    template_name = 'goal/goal_form.html'
-    success_url = reverse_lazy('goal:goal_list')
+    template_name = "goal/goal_form.html"
+    success_url = reverse_lazy("goal:goal_list")
 
     def form_valid(self, form):
         print(f"DEBUG: Setting owner to {self.request.user}")
         form.instance.owner = self.request.user
         response = super().form_valid(form)
-        print(f"DEBUG: Goal created with ID {self.object.id}, owner: {self.object.owner}")
+        print(
+            f"DEBUG: Goal created with ID {self.object.id}, owner: {self.object.owner}"
+        )
         return response
 
 
 class GoalUpdateView(LoginRequiredMixin, UpdateView):
     model = Goal
     form_class = GoalForms
-    template_name = 'goal/goal_form.html'
-    success_url = reverse_lazy('goal:goal_list')
+    template_name = "goal/goal_form.html"
+    success_url = reverse_lazy("goal:goal_list")
 
     def get_queryset(self):
         return Goal.objects.filter(owner=self.request.user)
@@ -61,8 +70,8 @@ class GoalUpdateView(LoginRequiredMixin, UpdateView):
 
 class GoalDetailView(LoginRequiredMixin, DetailView):
     model = Goal
-    template_name = 'goal/goal_detail.html'
-    context_object_name = 'goal'
+    template_name = "goal/goal_detail.html"
+    context_object_name = "goal"
 
     def get_queryset(self):
         return Goal.objects.all()
@@ -70,8 +79,8 @@ class GoalDetailView(LoginRequiredMixin, DetailView):
 
 class GoalDeleteView(LoginRequiredMixin, DeleteView):
     model = Goal
-    template_name = 'goal/goal_confirm_delete.html'
-    success_url = reverse_lazy('goal:goal_list')
+    template_name = "goal/goal_confirm_delete.html"
+    success_url = reverse_lazy("goal:goal_list")
 
     def get_queryset(self):
         return Goal.objects.filter(owner=self.request.user)
@@ -100,16 +109,19 @@ class GoalListAPIView(ListAPIView):
     ),
 )
 class PublicGoalTemplateView(TemplateView):
-    template_name = 'goal/public_goal_list.html'
+    template_name = "goal/public_goal_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         public_goals = Goal.objects.filter(is_public=True)
-        print(f"DEBUG PublicGoalTemplateView: Found {public_goals.count()} public goals")
+        print(
+            f"DEBUG PublicGoalTemplateView: Found {public_goals.count()} public goals"
+        )
         for goal in public_goals:
             print(
-                f"DEBUG: Public goal '{goal.title}' (ID: {goal.id}), owner: {goal.owner}, is_public: {goal.is_public}")
-        context['goals'] = public_goals
+                f"DEBUG: Public goal '{goal.title}' (ID: {goal.id}), owner: {goal.owner}, is_public: {goal.is_public}"
+            )
+        context["goals"] = public_goals
         return context
 
 
@@ -119,8 +131,11 @@ class GoalCreateAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        if request.accepted_media_type == 'text/html' or 'text/html' in request.META.get('HTTP_ACCEPT', ''):
-            return render(request, 'goal/create_form.html')
+        if (
+            request.accepted_media_type == "text/html"
+            or "text/html" in request.META.get("HTTP_ACCEPT", "")
+        ):
+            return render(request, "goal/create_form.html")
         return super().get(request, *args, **kwargs)
 
 
@@ -144,7 +159,7 @@ class GoalUpdateAPIView(UpdateAPIView):
 
     model = Goal
     form_class = GoalForms
-    template_name = 'goal/form.html'
+    template_name = "goal/form.html"
 
     def get_queryset(self):
         # Только свои цели можно редактировать
@@ -158,7 +173,7 @@ class GoalUpdateAPIView(UpdateAPIView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('goal:goal_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy("goal:goal_detail", kwargs={"pk": self.object.pk})
 
 
 @method_decorator(

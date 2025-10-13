@@ -23,6 +23,7 @@ def media_filter(path):
 @register.simple_tag
 def current_time(format_string):
     from django.utils import timezone
+
     return timezone.now().strftime(format_string)
 
 
@@ -37,5 +38,5 @@ def media_filter(path):
     Фильтр для отображения медиа-файлов
     """
     if path:
-        return f'/media/{path}'
-    return ''
+        return f"/media/{path}"
+    return ""

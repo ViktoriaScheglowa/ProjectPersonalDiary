@@ -6,7 +6,12 @@ from goal.views import (
     GoalCreateAPIView,
     GoalUpdateAPIView,
     GoalDestroyAPIView,
-    GoalRetrieveAPIView, PublicGoalTemplateView, GoalCreateView, GoalListView, GoalUpdateView, GoalDetailView,
+    GoalRetrieveAPIView,
+    PublicGoalTemplateView,
+    GoalCreateView,
+    GoalListView,
+    GoalUpdateView,
+    GoalDetailView,
     GoalDeleteView,
 )
 
@@ -20,7 +25,6 @@ urlpatterns = [
     path("<int:pk>/update/", GoalUpdateView.as_view(), name="goal_update"),
     path("<int:pk>/detail/", GoalDetailView.as_view(), name="goal_detail"),
     path("<int:pk>/delete/", GoalDeleteView.as_view(), name="goal_delete"),
-
     path("api/goal/", PublicGoalTemplateView.as_view(), name="public_goal_api"),
     path("api/my/", GoalListAPIView.as_view(), name="goal_list_api"),
     path("api/create/", GoalCreateAPIView.as_view(), name="goal_create_api"),

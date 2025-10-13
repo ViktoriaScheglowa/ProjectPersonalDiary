@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 
 class ValidateCreate:
-    def __init__(self, created_at='created_at'):
+    def __init__(self, created_at="created_at"):
         self.created_at = created_at
 
     def __call__(self, attrs):
@@ -17,6 +17,8 @@ class ValidateCreate:
             value = timezone.localtime(value).date()
 
         if value < timezone.localdate():
-            raise serializers.ValidationError({
-                self.created_at: "Дата создания не может быть раньше сегодняшнего дня."
-            })
+            raise serializers.ValidationError(
+                {
+                    self.created_at: "Дата создания не может быть раньше сегодняшнего дня."
+                }
+            )

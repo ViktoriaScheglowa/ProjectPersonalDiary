@@ -1,0 +1,5 @@
+**/
+!config/
+!users/
+!manage.py
+!requirements.txt
