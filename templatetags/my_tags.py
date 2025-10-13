@@ -13,13 +13,6 @@ def my_custom_filter(value):
     return value
 
 
-@register.filter()
-def media_filter(path):
-    if path:
-        return f"/media/{path}"
-    return "#"
-
-
 @register.simple_tag
 def current_time(format_string):
     from django.utils import timezone

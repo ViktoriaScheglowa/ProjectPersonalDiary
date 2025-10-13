@@ -10,27 +10,17 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import CreateView, UpdateView, ListView
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import (
-    CreateAPIView,
-    ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
     DestroyAPIView,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from config import settings
-from config.settings import EMAIL_HOST_USER
 from user.forms import UserRegisterForm, UserProfileForm
 from user.models import User
 from user.serializers import (
-    UserRegisterSerializer,
-    UserPublicSerializer,
     UserSerializers,
 )
 

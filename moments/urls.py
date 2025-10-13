@@ -2,7 +2,6 @@ from django.urls import path
 
 from moments.apps import MomentsConfig
 from moments.views import (
-    PublicMomentsTemplateView,
     MomentsListAPIView,
     MomentsCreateView,
     MomentsUpdateView,
