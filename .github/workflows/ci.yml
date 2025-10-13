@@ -142,31 +142,31 @@ jobs:
 #          fi
 #          EOF
 
-      - name: Install Docker on Server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-          set -e
-          
-          # Проверяем установлен ли Docker
-          if ! command -v docker &> /dev/null; then
-            echo "Installing Docker..."
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sudo sh get-docker.sh
-            # Добавляем пользователя в группу docker
-            sudo usermod -aG docker $USER
-            
-            # Запускаем демон Docker
-            sudo systemctl enable docker
-            sudo systemctl start docker
-          fi
-          
-          # Проверяем установку
-          docker --version
-          echo "Docker installed and running!"
-          git fetch --all
-          git reset --hard origin/${{ github.ref_name }}
-          
-          sudo docker compose down -v || true
-          git pull origin feature1 || git clone -b feature1 git@github.com:${{ github.repository }}.git .
-          sudo docker compose up -d --build
-          EOF
+#      - name: Install Docker on Server
+#        run: |
+#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+#          set -e
+#
+#          # Проверяем установлен ли Docker
+#          if ! command -v docker &> /dev/null; then
+#            echo "Installing Docker..."
+#            curl -fsSL https://get.docker.com -o get-docker.sh
+#            sudo sh get-docker.sh
+#            # Добавляем пользователя в группу docker
+#            sudo usermod -aG docker $USER
+#
+#            # Запускаем демон Docker
+#            sudo systemctl enable docker
+#            sudo systemctl start docker
+#          fi
+#
+#          # Проверяем установку
+#          docker --version
+#          echo "Docker installed and running!"
+#          git fetch --all
+#          git reset --hard origin/${{ github.ref_name }}
+#
+#          sudo docker compose down -v || true
+#          git pull origin feature1 || git clone -b feature1 git@github.com:${{ github.repository }}.git .
+#          sudo docker compose up -d --build
+#          EOF
