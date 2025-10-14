@@ -17,9 +17,7 @@ class CheckGoalValidator:
         is_public = attrs.get(self.is_public)
 
         if is_public and not is_active:
-            raise ValidationError(
-                "Неактивная цель не может быть публичной."
-            )
+            raise ValidationError("Неактивная цель не может быть публичной.")
         # return True
 
 

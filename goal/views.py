@@ -1,6 +1,15 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import (
+    TemplateView,
+    ListView,
+    CreateView,
+    UpdateView,
+    DetailView,
+    DeleteView,
+)
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -14,71 +23,120 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from goal.models import Goal
+from goal.forms import GoalForms
 from goal.paginators import CustomPaginator
 from goal.serializers import GoalSerializer, PublicListGoalSerializer
 
 
+class GoalListView(LoginRequiredMixin, ListView):
+    model = Goal
+    template_name = "goal/my_goal_list.html"
+    context_object_name = "goals"
+    paginate_by = 5
+
+    def get_queryset(self):
+        goals = Goal.objects.filter(owner=self.request.user)  # или owner
+        print(f"DEBUG: User {self.request.user} has {goals.count()} goals")
+        for goal in goals:
+            print(f"DEBUG: Goal '{goal.title}', owner: {goal.owner}")
+        return goals
+
+
+class GoalCreateView(LoginRequiredMixin, CreateView):
+    model = Goal
+    form_class = GoalForms
+    template_name = "goal/goal_form.html"
+    success_url = reverse_lazy("goal:goal_list")
+
+    def form_valid(self, form):
+        print(f"DEBUG: Setting owner to {self.request.user}")
+        form.instance.owner = self.request.user
+        response = super().form_valid(form)
+        print(
+            f"DEBUG: Goal created with ID {self.object.id}, owner: {self.object.owner}"
+        )
+        return response
+
+
+class GoalUpdateView(LoginRequiredMixin, UpdateView):
+    model = Goal
+    form_class = GoalForms
+    template_name = "goal/goal_form.html"
+    success_url = reverse_lazy("goal:goal_list")
+
+    def get_queryset(self):
+        return Goal.objects.filter(owner=self.request.user)
+
+
+class GoalDetailView(LoginRequiredMixin, DetailView):
+    model = Goal
+    template_name = "goal/goal_detail.html"
+    context_object_name = "goal"
+
+    def get_queryset(self):
+        return Goal.objects.all()
+
+
+class GoalDeleteView(LoginRequiredMixin, DeleteView):
+    model = Goal
+    template_name = "goal/goal_confirm_delete.html"
+    success_url = reverse_lazy("goal:goal_list")
+
+    def get_queryset(self):
+        return Goal.objects.filter(owner=self.request.user)
+
+
+# API Views (оставляем для API)
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
-        operation_summary="Список целей",
+        operation_summary="Список личных моментов",
     ),
 )
 class GoalListAPIView(ListAPIView):
-    """
-    Получение списка целей, созданных текущим пользователем. Требуются авторизация.
-    Суперпользователь и модератор могут просматривать весь список целей.
-    Реализована пагинация по 5 элементов на странице.
-    """
-
     serializer_class = GoalSerializer
     pagination_class = CustomPaginator
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
         return Goal.objects.filter(owner=self.request.user)
 
 
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
-        operation_summary="Список публичных целей",
+        operation_summary="Список публичных моментов",
     ),
 )
-class PublicGoalListAPIView(ListAPIView):
-    """
-    Получение списка публичных целей. Доступно для всех пользователей.
-    Реализована пагинация по 5 элементов на странице.
-    """
-
-    serializer_class = PublicListGoalSerializer
-    pagination_class = CustomPaginator
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        return Goal.objects.filter(is_public=True)
-
-
 class PublicGoalTemplateView(TemplateView):
-    template_name = 'goal/public_goal_list.html'
+    template_name = "goal/public_goal_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        public_goals = Goal.objects.filter(is_public=True)
+        print(
+            f"DEBUG PublicGoalTemplateView: Found {public_goals.count()} public goals"
+        )
+        for goal in public_goals:
+            print(
+                f"DEBUG: Public goal '{goal.title}' (ID: {goal.id}), owner: {goal.owner}, is_public: {goal.is_public}"
+            )
+        context["goals"] = public_goals
+        return context
 
 
-@method_decorator(
-    name="post",
-    decorator=swagger_auto_schema(
-        operation_summary="Создание цели",
-    ),
-)
 class GoalCreateAPIView(CreateAPIView):
-    """
-    Создание новой цели. Требуются авторизация.
-    Параллельно создается периодическая задача в зависимости от указанной периодичности цели.
-    """
-
     queryset = Goal.objects.all()
     serializer_class = GoalSerializer
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if (
+            request.accepted_media_type == "text/html"
+            or "text/html" in request.META.get("HTTP_ACCEPT", "")
+        ):
+            return render(request, "goal/create_form.html")
+        return super().get(request, *args, **kwargs)
 
 
 @method_decorator(
@@ -96,32 +154,39 @@ class GoalCreateAPIView(CreateAPIView):
 class GoalUpdateAPIView(UpdateAPIView):
     """
     Редактирование информации о цели.
-    Доступ к конкретным целям есть только у создателя цели, модератора и суперпользователя.
+    Доступ к конкретным целям есть только у создателя цели и суперпользователя.
     """
 
-    queryset = Goal.objects.all()
-    serializer_class = GoalSerializer
+    model = Goal
+    form_class = GoalForms
+    template_name = "goal/form.html"
 
-    def perform_update(self, serializer):
-        user = self.request.user
-        goal = self.get_object()
+    def get_queryset(self):
+        # Только свои цели можно редактировать
+        return Goal.objects.filter(owner=self.request.user)
 
-        if not user == goal.owner:
-            raise PermissionDenied("У Вас нет прав редактировать эту цель.")
-        serializer.save()
+    def dispatch(self, request, *args, **kwargs):
+        # Дополнительная проверка прав
+        obj = self.get_object()
+        if obj.owner != request.user:
+            raise PermissionDenied("Вы не можете редактировать эту цель")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy("goal:goal_detail", kwargs={"pk": self.object.pk})
 
 
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
-        operation_summary="Просмотр привычки",
+        operation_summary="Просмотр цели",
     ),
 )
 class GoalRetrieveAPIView(RetrieveAPIView):
     """
     Просмотр детальной информации о цели.
     Неавторизованный пользователь может просматривать только публичные цели.
-    Непубличную целу может просматривать только создатель, модератор и суперпользователь.
+    Непубличную цель может просматривать только создатель и суперпользователь.
     """
 
     queryset = Goal.objects.all()
@@ -140,12 +205,12 @@ class GoalRetrieveAPIView(RetrieveAPIView):
 @method_decorator(
     name="delete",
     decorator=swagger_auto_schema(
-        operation_summary="Удаление цели",
+        operation_summary="Удаление момента",
     ),
 )
 class GoalDestroyAPIView(DestroyAPIView):
     """
-    Владелец цели может удалять привычку из БД.
+    Владелец момента может удалять момент из БД.
     """
 
     queryset = Goal.objects.all()

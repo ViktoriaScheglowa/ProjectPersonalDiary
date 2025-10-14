@@ -1,6 +1,16 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import (
+    TemplateView,
+    DeleteView,
+    DetailView,
+    UpdateView,
+    CreateView,
+    ListView,
+)
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -14,41 +24,143 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
+from django.db.models import Q
 
+from habits.forms import HabitForm
 from habits.models import Habit
 from habits.paginators import CustomPaginator
 from habits.serializers import HabitSerializer, PublicListHabitSerializer
 
 
-@method_decorator(cache_page(60*15), name='dispatch')
+# HTML Views для привычек
+class HabitListView(LoginRequiredMixin, ListView):
+    model = Habit
+    template_name = "habits/my_habits_list.html"
+    context_object_name = "habits"
+    paginate_by = 5
+
+    def get_queryset(self):
+        return Habit.objects.filter(owner=self.request.user)
+
+
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        operation_summary="Список публичных моментов",
+    ),
+)
+class PublicHabitsTemplateView(TemplateView):
+    template_name = "habits/public_habits_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        habits = Habit.objects.filter(is_public=True)
+        print(f"Found {len(habits)} public habits")  # Для отладки
+        context["habits"] = habits
+        return context
+
+
+class HabitCreateView(LoginRequiredMixin, CreateView):
+    model = Habit
+    form_class = HabitForm
+    template_name = "habits/habits_form.html"
+    fields = [
+        "location",
+        "date_deadline",
+        "time_deadline",
+        "action",
+        "is_enjoyable",
+        "associated_habit",
+        "periodicity",
+        "reward",
+        "photo",
+        "video",
+        "time_to_complete",
+        "is_public",
+    ]
+    success_url = reverse_lazy("habits:habits_list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        if (
+            hasattr(self.request.user, "profile")
+            and self.request.user.profile.telegram_chat_id
+        ):
+            form.instance.telegram_chat_id = self.request.user.profile.telegram_chat_id
+            print(
+                f"✅ Автоматически добавлен chat_id: {self.request.user.profile.telegram_chat_id}"
+            )
+        else:
+            print("⚠️ У пользователя нет chat_id в профиле")
+        return super().form_valid(form)
+
+
+class HabitUpdateView(LoginRequiredMixin, UpdateView):
+    model = Habit
+    template_name = "habits/habits_form.html"
+    fields = [
+        "location",
+        "date_deadline",
+        "time_deadline",
+        "action",
+        "is_enjoyable",
+        "associated_habit",
+        "periodicity",
+        "reward",
+        "time_to_complete",
+        "is_public",
+    ]
+    success_url = reverse_lazy("habits:habits_list")
+
+    def get_queryset(self):
+        return Habit.objects.filter(owner=self.request.user)
+
+
+class HabitDetailView(LoginRequiredMixin, DetailView):
+    model = Habit
+    template_name = "habits/habits_detail.html"
+    context_object_name = "habit"
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Habit.objects.filter(
+                models.Q(is_public=True) | models.Q(owner=self.request.user)
+            )
+        else:
+            return Habit.objects.filter(is_public=True)
+
+
+class HabitDeleteView(LoginRequiredMixin, DeleteView):
+    model = Habit
+    template_name = "habits/habits_confirm_delete.html"
+    success_url = reverse_lazy("habits:habits_list")
+
+    def get_queryset(self):
+        return Habit.objects.filter(owner=self.request.user)
+
+
+@method_decorator(cache_page(60 * 15), name="dispatch")
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="Список личных привычек",
-    )
+    ),
 )
 class HabitListAPIView(ListAPIView):
-    """
-    Получение списка привычек, созданных текущим пользователем. Требуются авторизация.
-    Суперпользователь и модератор могут просматривать весь список привычек.
-    Реализована пагинация по 5 элементов на странице.
-    """
-    template_name = 'habits/my_habits_list.html'
-    context_object_name = 'habits'
     serializer_class = HabitSerializer
     pagination_class = CustomPaginator
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        queryset = cache.get('habits_list')
+        queryset = cache.get(f"habits_list_{user.id}")
         if not queryset:
-            queryset = super().get_queryset()
-            cache.set('habits_list', queryset, 60 * 15)
-        return Habit.objects.filter(owner=self.request.user)
+            queryset = Habit.objects.filter(owner=user)
+            cache.set(f"habits_list_{user.id}", queryset, 60 * 15)
+        return queryset
 
 
-@method_decorator(cache_page(60*15), name='dispatch')
+@method_decorator(cache_page(60 * 15), name="dispatch")
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
@@ -56,25 +168,17 @@ class HabitListAPIView(ListAPIView):
     ),
 )
 class PublicHabitListAPIView(ListAPIView):
-    """
-    Получение списка публичных привычек. Доступно для всех пользователей.
-    Реализована пагинация по 5 элементов на странице.
-    """
-    context_object_name = 'public_habits'
+    context_object_name = "public_habits"
     serializer_class = PublicListHabitSerializer
     pagination_class = CustomPaginator
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        queryset = cache.get('public_habits_list')
+        queryset = cache.get("public_habits_list")
         if not queryset:
-            queryset = super().get_queryset()
-            cache.set('public_habits_list', queryset, 60 * 15)
-        return Habit.objects.filter(is_public=True)
-
-
-class PublicHabitsTemplateView(TemplateView):
-    template_name = 'habits/public_habits_list.html'
+            queryset = Habit.objects.filter(is_public=True)
+            cache.set("public_habits_list", queryset, 60 * 15)
+        return queryset
 
 
 @method_decorator(
@@ -84,11 +188,6 @@ class PublicHabitsTemplateView(TemplateView):
     ),
 )
 class HabitCreateAPIView(CreateAPIView):
-    """
-    Создание новой привычки. Требуются авторизация.
-    Параллельно создается периодическая задача в зависимости от указанной периодичности привычки.
-    """
-
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
     permission_classes = [IsAuthenticated]
@@ -107,11 +206,6 @@ class HabitCreateAPIView(CreateAPIView):
     ),
 )
 class HabitUpdateAPIView(UpdateAPIView):
-    """
-    Редактирование информации о привычке.
-    Доступ к конкретным привычкам есть только у создателя привычки, модератора и суперпользователя.
-    """
-
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
 
@@ -131,12 +225,6 @@ class HabitUpdateAPIView(UpdateAPIView):
     ),
 )
 class HabitRetrieveAPIView(RetrieveAPIView):
-    """
-    Просмотр детальной информации о привычке.
-    Неавторизованный пользователь может просматривать только публичные привычки.
-    Непубличную привычку может просматривать только создатель, модератор и суперпользователь.
-    """
-
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
 
@@ -157,10 +245,6 @@ class HabitRetrieveAPIView(RetrieveAPIView):
     ),
 )
 class HabitDestroyAPIView(DestroyAPIView):
-    """
-    Владелец привычки может удалять привычку из БД.
-    """
-
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
 

@@ -2,8 +2,38 @@
     <div class="container">
         <div class="header-content">
             <div class="logo">
-                <span>📖</span> Мой Дневник
+                <span>📖</span> LifeCanvas
             </div>
+
+            <!-- Правая часть с аватаром и меню -->
+            <div class="header-right">
+                <!-- Аватар пользователя если авторизован -->
+                {% if user.is_authenticated %}
+                <div class="user-avatar">
+                    <div class="avatar-circle">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}"
+                                 alt="{{ user.username }}"
+                                 class="avatar-image">
+                        {% else %}
+                            <span class="avatar-initials">
+                                {% if user.username %}
+                                    {{ user.username|first|upper }}
+                                {% else %}
+                                    U
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="username">
+                        {% if user.username %}
+                            {{ user.username }}
+                        {% else %}
+                            Пользователь
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
 
             <!-- Кнопка меню для мобильных -->
             <button class="menu-toggle" id="menuToggle">☰</button>

@@ -2,7 +2,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView, CreateView, ListView, UpdateView, DeleteView, DetailView
+from django.views.generic import (
+    TemplateView,
+    CreateView,
+    ListView,
+    UpdateView,
+    DeleteView,
+    DetailView,
+)
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -18,54 +25,67 @@ from rest_framework.response import Response
 from moments.models import Moment
 from moments.paginators import CustomPaginator
 from moments.serializers import MomentsSerializer, PublicListMomentSerializer
-from moments.forms import StyleFormMixin
-
-
-class MomentFormMixin(StyleFormMixin, LoginRequiredMixin):
-    model = Moment
-    fields = ['title', 'comments', 'photo', 'video', 'location', 'is_public']
-
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        return super().form_valid(form)
+from moments.forms import MomentForm
 
 
 class MomentsListView(LoginRequiredMixin, ListView):
     model = Moment
-    template_name = 'moments/my_moments_list.html'
-    context_object_name = 'moments'
+    template_name = "moments/my_moments_list.html"
+    context_object_name = "moments"
     paginate_by = 5
 
     def get_queryset(self):
         return Moment.objects.filter(owner=self.request.user)
 
 
-class MomentsCreateView(MomentFormMixin, CreateView):
-    template_name = 'moments/moments_form.html'
-    success_url = reverse_lazy('moments:moments_list')
+class MomentsCreateView(LoginRequiredMixin, CreateView):
+    model = Moment
+    form_class = MomentForm
+    template_name = "moments/moments_form.html"
+    success_url = reverse_lazy("moments:moments_list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
-class MomentsUpdateView(MomentFormMixin, UpdateView):
-    template_name = 'moments/moments_form.html'
-    success_url = reverse_lazy('moments:moments_list')
+class MomentsUpdateView(LoginRequiredMixin, UpdateView):
+    model = Moment
+    form_class = MomentForm
+    template_name = "moments/moments_form.html"
+    success_url = reverse_lazy("moments:moments_list")
+
+    def get_queryset(self):
+        return Moment.objects.filter(owner=self.request.user)
 
 
 class MomentsDetailView(LoginRequiredMixin, DetailView):
     model = Moment
-    template_name = 'moments/moment_detail.html'
-    context_object_name = 'moment'
+    template_name = "moments/moment_detail.html"
+    context_object_name = "moment"
 
     def get_queryset(self):
-        return Moment.objects.filter(owner=self.request.user)
+        return Moment.objects.all()
 
 
 class MomentsDeleteView(LoginRequiredMixin, DeleteView):
     model = Moment
-    template_name = 'moments/moment_confirm_delete.html'
-    success_url = reverse_lazy('moments:moments_list')
+    template_name = "moments/moment_confirm_delete.html"
+    success_url = reverse_lazy("moments:moments_list")
 
     def get_queryset(self):
         return Moment.objects.filter(owner=self.request.user)
+
+
+class PublicMomentsTemplateView(TemplateView):
+    template_name = "moments/public_moments_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        moments = Moment.objects.filter(is_public=True)
+        print(f"Found {len(moments)} public moments")  # Для отладки
+        context["moments"] = moments
+        return context
 
 
 # API Views (оставляем для API)
@@ -90,36 +110,17 @@ class MomentsListAPIView(ListAPIView):
         operation_summary="Список публичных моментов",
     ),
 )
-class PublicMomentsListAPIView(ListAPIView):
-    serializer_class = PublicListMomentSerializer
-    pagination_class = CustomPaginator
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        return Moment.objects.filter(is_public=True)
-
-
-class PublicMomentsTemplateView(TemplateView):
-    template_name = 'moments/public_moments_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['moments'] = Moment.objects.filter(is_public=True)
-        return context
-
-
-# Остальные API views остаются без изменений...
-
-
-# Или модифицируйте API View для поддержки HTML
 class MomentsCreateAPIView(CreateAPIView):
     queryset = Moment.objects.all()
     serializer_class = MomentsSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        if request.accepted_media_type == 'text/html' or 'text/html' in request.META.get('HTTP_ACCEPT', ''):
-            return render(request, 'moments/create_form.html')
+        if (
+            request.accepted_media_type == "text/html"
+            or "text/html" in request.META.get("HTTP_ACCEPT", "")
+        ):
+            return render(request, "moments/create_form.html")
         return super().get(request, *args, **kwargs)
 
 

@@ -22,23 +22,23 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
-app_name = 'user'
+app_name = "user"
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='main/main.html'), name='main'),
-    path('admin/', admin.site.urls),
-    path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
-    path('user/', include('user.urls')),
-    path('habits/', include('habits.urls', namespace='habits')),
-    path('idea/', include('idea.urls', namespace='idea')),
-    path('moments/', include('moments.urls', namespace='moments')),
-    path('goal/', include('goal.urls', namespace='goal')),
+    path("", TemplateView.as_view(template_name="main/main.html"), name="main"),
+    path("admin/", admin.site.urls),
+    path("logout/", LogoutView.as_view(next_page="/"), name="logout"),
+    path("user/", include("user.urls")),
+    path("habits/", include("habits.urls", namespace="habits")),
+    path("idea/", include("idea.urls", namespace="idea")),
+    path("moments/", include("moments.urls", namespace="moments")),
+    path("goal/", include("goal.urls", namespace="goal")),
     path(
-        'swagger/',
-        schema_view.with_ui('swagger', cache_timeout=0),
-        name='schema-swagger-ui',
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
     ),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

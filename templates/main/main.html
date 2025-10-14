@@ -1,117 +1,190 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Мой дневник{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
 {% block content %}
+
 <section class="carousel-section">
-        <div class="container">
-            <div class="carousel">
-                <div class="carousel-slides">
-                    <!-- Слайд 1: Публичные моменты -->
-                    <div class="carousel-slide" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <div class="slide-content">
-                            <h2>Публичные моменты</h2>
-                            <p>Откройте для себя вдохновляющие моменты из жизни других пользователей</p>
-                            <li><a href="/idea/public/" class="nav-link">Смотреть все моменты</a></li>
-                        </div>
-                    </div>
-
-                    <!-- Слайд 2: Публичные мысли -->
-                    <div class="carousel-slide" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <div class="slide-content">
-                            <h2>Публичные мысли</h2>
-                            <p>Читайте размышления и идеи, которыми делятся пользователи</p>
-                            <li><a href="/idea/public/" class="nav-link">Читать мысли</a></li>
-                        </div>
-                    </div>
-
-                    <!-- Слайд 3: Публичные цели -->
-                    <div class="carousel-slide" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <div class="slide-content">
-                            <h2>Публичные цели</h2>
-                            <p>Вдохновляйтесь целями, которые ставят перед собой другие</p>
-                            <li><a href="/goal/public/" class="nav-link">Исследовать цели</a></li>
-                        </div>
-                    </div>
-
-                    <!-- Слайд 4: Публичные привычки -->
-                    <div class="carousel-slide" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                        <div class="slide-content">
-                            <h2>Публичные привычки</h2>
-                            <p>Откройте полезные привычки, которые формируют пользователи</p>
-                            <li><a href="/habits/public/" class="nav-link">Изучить привычки</a></li>
-                        </div>
+    <div class="container">
+        <div class="carousel">
+            <div class="carousel-slides">
+                <!-- Слайд 1: Фокус дня -->
+                <div class="carousel-slide active" style="background-image: url('{% static 'images/carousel/focus_day.jpg' %}');">
+                    <div class="slide-content">
+                        <h2>Фокус дня</h2>
+                        <p>Самые яркие и значимые моменты, которые стоит отметить</p>
+                        <li style="list-style: none;"><a href="/moments/public/" class="carousel-nav-link">Исследовать моменты</a></li>
                     </div>
                 </div>
 
-                <!-- Кнопки навигации -->
-                <button class="carousel-btn prev">‹</button>
-                <button class="carousel-btn next">›</button>
+                <!-- Слайд 2: Мысли вслух -->
+               <div class="carousel-slide" style="background-image: url('{% static 'images/carousel/thoughts_aloud.jpg' %}');">
+                    <div class="slide-content">
+                        <h2>Мысли вслух</h2>
+                        <p>Идеи и размышления, которыми делятся пользователи</p>
+                        <li style="list-style: none;"><a href="/idea/public/" class="carousel-nav-link">Читать мысли</a></li>
+                    </div>
+               </div>
 
-                <!-- Индикаторы -->
-                <div class="carousel-indicators">
-                    <div class="indicator active" data-slide="0"></div>
-                    <div class="indicator" data-slide="1"></div>
-                    <div class="indicator" data-slide="2"></div>
-                    <div class="indicator" data-slide="3"></div>
+                <!-- Слайд 3: Открытые планы -->
+                <div class="carousel-slide" style="background-image: url('{% static 'images/carousel/open_plans.jpg' %}');">
+                    <div class="slide-content">
+                        <h2>Открытые планы</h2>
+                        <p>Цели и стремления, вдохновляющие на движение вперед</p>
+                        <li style="list-style: none;"><a href="/goal/public/" class="carousel-nav-link">Изучить планы</a></li>
+                    </div>
+                </div>
+
+                <!-- Слайд 4: Ритмы дня -->
+                <div class="carousel-slide" style="background-image: url('{% static 'images/carousel/daily_rhythms.jpg' %}');">
+                    <div class="slide-content">
+                        <h2>Ритмы дня</h2>
+                        <p>Привычки и рутины, формирующие осознанную жизнь</p>
+                        <li style="list-style: none;"><a href="/habits/public/" class="carousel-nav-link">Найти ритм</a></li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки навигации -->
+            <button class="carousel-btn prev">‹</button>
+            <button class="carousel-btn next">›</button>
+
+            <!-- Индикаторы -->
+            <div class="carousel-indicators">
+                <div class="indicator active" data-slide="0"></div>
+                <div class="indicator" data-slide="1"></div>
+                <div class="indicator" data-slide="2"></div>
+                <div class="indicator" data-slide="3"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <h2 class="section-title">Мой дневник</h2>
+    <div class="row justify-content-center">
+        <!--Мои моменты -->
+        <div class="col-12 col-sm-6 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Мои моменты</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">Запечатлейте самые важные и яркие моменты вашего дня.</p>
+                    <a href="/moments/create/" class="btn btn-primary">Добавить момент</a>
                 </div>
             </div>
         </div>
-    </section>
 
-    <div class="container mt-5">
-        <h2 class="section-title">Мой дневник</h2>
-        <div class="row">
-            <!-- Мои моменты -->
-            <div class="col-md-6 col-lg-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Мои моменты</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Запечатлейте важные события и воспоминания из вашей жизни.</p>
-                        <a href="/moments/create/" class="btn btn-primary">Добавить момент</a>
-                    </div>
+        <!--Мои мысли -->
+        <div class="col-12 col-sm-6 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Мои мысли</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">Записывайте идеи, инсайты и личные размышления.</p>
+                    <a href="/idea/create/" class="btn btn-primary">Добавить мысль</a>
                 </div>
             </div>
+        </div>
 
-            <!-- Мои мысли -->
-            <div class="col-md-6 col-lg-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Мои мысли</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Записывайте свои идеи, размышления и инсайты.</p>
-                        <a href="/idea/create/" class="btn btn-primary">Добавить мысль</a>
-                    </div>
+        <!-- Мои привычки -->
+        <div class="col-12 col-sm-6 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Мои привычки</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">Создавайте и отслеживайте свои ежедневные привычки.</p>
+                    <a href="/habits/create/" class="btn btn-primary">Добавить привычку</a>
                 </div>
             </div>
+        </div>
 
-            <!-- Мои привычки -->
-            <div class="col-md-6 col-lg-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Мои привычки</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Отслеживайте и формируйте полезные привычки.</p>
-                        <a href="/habits/create/" class="btn btn-primary">Добавить привычку</a>
-                    </div>
+        <!-- Мои цели -->
+        <div class="col-12 col-sm-6 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Мои цели</h5>
                 </div>
-            </div>
-
-            <!-- Мои цели -->
-            <div class="col-md-6 col-lg-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Мои цели</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Ставьте цели и отслеживайте свой прогресс.</p>
-                        <a href="/goal/create/" class="btn btn-primary">Добавить цель</a>
-                    </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">Ставьте цели и планируйте свои достижения.</p>
+                    <a href="/goal/create/" class="btn btn-primary">Добавить цель</a>
                 </div>
             </div>
         </div>
     </div>
- {% endblock %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const prevBtn = document.querySelector('.carousel-btn.prev');
+        const nextBtn = document.querySelector('.carousel-btn.next');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            // Скрываем все слайды
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+
+            // Показываем текущий слайд
+            slides[index].classList.add('active');
+            indicators[index].classList.add('active');
+            currentSlide = index;
+        }
+
+        function nextSlide() {
+            let next = currentSlide + 1;
+            if (next >= slides.length) next = 0;
+            showSlide(next);
+        }
+
+        function prevSlide() {
+            let prev = currentSlide - 1;
+            if (prev < 0) prev = slides.length - 1;
+            showSlide(prev);
+        }
+
+        // Автопереключение каждые 5 секунд
+        let slideInterval = setInterval(nextSlide, 5000);
+
+        // Обработчики событий
+        nextBtn.addEventListener('click', () => {
+            clearInterval(slideInterval);
+            nextSlide();
+            slideInterval = setInterval(nextSlide, 5000);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            clearInterval(slideInterval);
+            prevSlide();
+            slideInterval = setInterval(nextSlide, 5000);
+        });
+
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                clearInterval(slideInterval);
+                showSlide(index);
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+        });
+
+        // Пауза при наведении
+        const carousel = document.querySelector('.carousel');
+        carousel.addEventListener('mouseenter', () => clearInterval(slideInterval));
+        carousel.addEventListener('mouseleave', () => slideInterval = setInterval(nextSlide, 5000));
+    });
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/carousel.js' %}"></script>
+{% endblock %}

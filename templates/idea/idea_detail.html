@@ -1,10 +1,398 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load my_tags %}
+{% block title %}{{ idea.title|default:"Детали мысли" }}{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <!-- Единая карточка с фото и деталями -->
+            <div class="card idea-detail-card">
+                <div class="idea-detail-container">
+                    {% if idea.pictures %}
+                    <img src="{{ idea.pictures.url }}"
+                         alt="{{ idea.title|default:'Мысль' }}"
+                         class="idea-detail-image">
+                    {% else %}
+                    <div class="idea-no-detail-image bg-light">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Нет изображения</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="idea-detail-overlay">
+                        <div class="idea-detail-content">
+                            <!-- Заголовок и мета-информация в левом нижнем углу -->
+                            <div class="idea-detail-header">
+                                <h1 class="idea-detail-title">{{ idea.title|default:"Без названия" }}</h1>
+                                <div class="idea-detail-meta">
+                                    <div class="idea-detail-meta-item">
+                                        <i class="bi bi-person"></i>
+                                        <span>
+                                            {% if idea.owner %}
+                                                {{ idea.owner }}
+                                            {% else %}
+                                                Анонимный пользователь
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="idea-detail-meta-item">
+                                        <i class="bi bi-calendar"></i>
+                                        <span>{{ idea.created_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    {% if idea.update_at != idea.created_at %}
+                                    <div class="idea-detail-meta-item">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        <span>Обновлено: {{ idea.update_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="idea-detail-meta-item">
+                                        {% if idea.is_public %}
+                                        <i class="bi bi-globe text-success"></i>
+                                        <span class="text-success">Публичная</span>
+                                        {% else %}
+                                        <i class="bi bi-lock text-secondary"></i>
+                                        <span class="text-secondary">Приватная</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Детальная информация - компактная -->
+                            <div class="idea-detail-info">
+                                {% if idea.comments %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-chat-text"></i>
+                                        <span class="detail-item-title">Комментарии</span>
+                                    </div>
+                                    <p class="detail-item-content">{{ idea.comments|linebreaks }}</p>
+                                </div>
+                                {% else %}
+                                <div class="detail-item">
+                                    <div class="detail-item-header">
+                                        <i class="bi bi-chat-text"></i>
+                                        <span class="detail-item-title">Комментарии</span>
+                                    </div>
+                                    <p class="detail-item-content text-muted">Нет комментариев</p>
+                                </div>
+                                {% endif %}
+
+                                <!-- Убраны блоки location и video, так как их нет в модели -->
+                            </div>
+
+                            <!-- Кнопки действий -->
+                            <div class="idea-detail-actions">
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if user.is_authenticated and user == idea.owner %}
+                                    <a href="{% url 'idea:idea_list' %}" class="btn btn-secondary btn-detail-action">
+                                        <i class="bi bi-arrow-left"></i>
+                                        К моим мыслям
+                                    </a>
+                                    <a href="{% url 'idea:idea_update' idea.pk %}" class="btn btn-primary btn-detail-action">
+                                        <i class="bi bi-pencil"></i>
+                                        Редактировать
+                                    </a>
+                                    <a href="{% url 'idea:idea_delete' idea.pk %}" class="btn btn-danger btn-detail-action">
+                                        <i class="bi bi-trash"></i>
+                                        Удалить
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'idea:public_idea_list' %}" class="btn btn-secondary btn-detail-action">
+                                        <i class="bi bi-arrow-left"></i>
+                                        К публичным мыслям
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.idea-detail-card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(139, 115, 85, 0.25);
+    background: transparent;
+    min-height: 600px;
+}
+
+.idea-detail-container {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.idea-detail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.idea-no-detail-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--beige-primary) 0%, var(--beige-dark) 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.idea-detail-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.4) 70%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+    color: white;
+}
+
+.idea-detail-content {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Заголовок и мета-информация - компактные */
+.idea-detail-header {
+    margin-bottom: 1.5rem;
+}
+
+.idea-detail-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: white;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+    line-height: 1.2;
+}
+
+.idea-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.idea-detail-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.idea-detail-meta-item i {
+    font-size: 0.9rem;
+}
+
+/* Детальная информация - компактная */
+.idea-detail-info {
+    margin-bottom: 1.5rem;
+}
+
+.detail-item {
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.detail-item-header i {
+    font-size: 0.9rem;
+    color: var(--beige-light);
+}
+
+.detail-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.detail-item-content {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Видео */
+.video-container {
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.idea-video {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    background: black;
+}
+
+/* Кнопки действий - компактные */
+.idea-detail-actions {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-detail-action {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: var(--terracotta-primary);
+    text-shadow: none;
+}
+
+.btn-detail-action:hover {
+    transform: translateY(-2px);
+    background: white;
+    border-color: white;
+    color: var(--terracotta-dark);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-detail-action.btn-secondary {
+    background: rgba(108, 117, 125, 0.9);
+    border-color: rgba(108, 117, 125, 0.9);
+    color: white;
+}
+
+.btn-detail-action.btn-secondary:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-detail-action.btn-danger {
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 0.9);
+    color: white;
+}
+
+.btn-detail-action.btn-danger:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .idea-detail-container {
+        min-height: 500px;
+    }
+
+    .idea-detail-overlay {
+        padding: 1.5rem;
+    }
+
+    .idea-detail-title {
+        font-size: 1.5rem;
+    }
+
+    .idea-detail-meta {
+        gap: 0.8rem;
+    }
+
+    .idea-detail-meta-item {
+        font-size: 0.85rem;
+    }
+
+    .detail-item {
+        padding: 0.7rem;
+    }
+
+    .detail-item-title {
+        font-size: 0.85rem;
+    }
+
+    .detail-item-content {
+        font-size: 0.8rem;
+    }
+
+    .idea-video {
+        max-height: 150px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .idea-detail-container {
+        min-height: 450px;
+    }
+
+    .idea-detail-overlay {
+        padding: 1rem;
+    }
+
+    .idea-detail-title {
+        font-size: 1.3rem;
+    }
+
+    .idea-detail-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-detail-action {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .idea-detail-actions .d-flex {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+}
+</style>
+{% endblock %}

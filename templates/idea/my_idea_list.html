@@ -1,36 +1,424 @@
 {% extends 'base.html' %}
 {% load my_tags %}
-{% block title %}Мои мысли{% endblock %}
+{% block title %}Мои интересные мысли{% endblock %}
+
 {% block content %}
-    <h2>Мои мысли</h2>
-    <div class="album py-5 bg-body-tertiary">
-        <div class="container">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            {% for idea in ideas %}
-            <div class="col">
-                <div class="card shadow-sm">
-                  <img src="{{ idea.picture | media_filter }}" class="img-thumbnail" alt="{{ idea.name }}">
-                  <div class="card-body">
-                    <p class="card-text">{{ idea.name }}</p>
-                    <p class="card-text">Описание: {{idea.description | truncatechars:100}}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="btn-group">
-                          <a class="btn btn-primary" href="{% url 'idea:idea_detail' idea.pk %}" role="button">Подробности</a>
-                      </div>
-                      </div>
-                  </div>
-                </div>
-              </div>
-              {% empty %}
-            <!-- Если нет блогов, отображаем сообщение -->
-                <div class="col-12 text-center">
-                    <p>Нет опубликованных мыслей.</p>
-                </div>
-            {% endfor %}
-          </div>
+<div class="container mt-4">
+    <!-- Заголовок и счетчик -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="section-title mb-0">Мои интересные мысли</h1>
+                <span class="badge bg-beige fs-6 px-3 py-2 rounded-pill">
+                    <i class="bi bi-chat-square-text me-1"></i>{{ paginator.count }} мыслей
+                </span>
+            </div>
         </div>
-      </div>
-    <div class="fixed-bottom d-flex justify-content-center mb-3">
-        <a class="btn btn-primary btn-lg shadow" href="{% url 'idea:idea_create' %}" role="button">Записать мысли</a>
     </div>
+
+    <!-- Поисковая форма -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="get" class="search-form">
+                <div class="input-group input-group-lg shadow-sm">
+                    <input type="text"
+                           name="search"
+                           class="form-control border-beige"
+                           placeholder="Поиск по заголовку и содержимому..."
+                           value="{{ search_query }}">
+                    <button class="btn btn-beige px-4" type="submit">
+                        <i class="bi bi-search me-2"></i>Найти
+                    </button>
+                    {% if search_query %}
+                    <a href="{% url 'idea:idea_list' %}" class="btn btn-outline-beige px-3">
+                        <i class="bi bi-x-circle me-1"></i>Сбросить
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if idea %}
+    <div class="row">
+        {% for item in idea %}
+        <div class="col-12 col-sm-6 col-lg-4 mb-4">
+            <div class="card idea-card">
+                <div class="idea-image-container">
+                    {% if item.pictures %}
+                    <img src="{{ item.pictures.url }}"
+                         alt="{{ item.title|default:'Мысль' }}"
+                         class="idea-image">
+                    {% else %}
+                    <div class="idea-no-image bg-light d-flex align-items-center justify-content-center">
+                        <div class="text-center text-muted">
+                            <i class="bi bi-image" style="font-size: 2rem;"></i>
+                            <p class="mt-2 mb-0 small">Нет изображения</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="idea-overlay">
+                        <div class="idea-content">
+                            <h5 class="idea-title">{{ item.title|default:"Без названия" }}</h5>
+
+                            {% if item.comments %}
+                            <p class="idea-description">{{ item.comments|truncatewords:15 }}</p>
+                            {% else %}
+                            <p class="idea-description text-muted">Нет комментариев</p>
+                            {% endif %}
+
+                            <div class="idea-meta">
+                                <div class="idea-meta-item">
+                                    <i class="bi bi-calendar"></i>
+                                    <small>{{ item.created_at|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                {% if item.update_at != item.created_at %}
+                                <div class="idea-meta-item">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    <small>Обновлено: {{ item.update_at|date:"d.m.Y" }}</small>
+                                </div>
+                                {% endif %}
+                                <div class="idea-meta-item">
+                                    {% if item.is_public %}
+                                    <i class="bi bi-globe text-success"></i>
+                                    <small class="text-success">Публичная</small>
+                                    {% else %}
+                                    <i class="bi bi-lock text-secondary"></i>
+                                    <small class="text-secondary">Приватная</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="idea-actions">
+                                <a class="btn btn-primary btn-sm"
+                                   href="{% url 'idea:idea_detail' item.pk %}"
+                                   role="button">
+                                    Подробности
+                                </a>
+                                <a class="btn btn-outline-secondary btn-sm"
+                                   href="{% url 'idea:idea_update' item.pk %}"
+                                   role="button">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center py-4">
+        {% if search_query %}
+        <h4 class="mb-3">По запросу "{{ search_query }}" ничего не найдено</h4>
+        <p class="mb-0">Попробуйте изменить поисковый запрос</p>
+        {% else %}
+        <h4 class="mb-3">У вас пока нет интересных мыслей</h4>
+        <p class="mb-3">Начните записывать свои идеи и размышления!</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'idea:idea_create' %}" role="button">
+            <i class="bi bi-plus-circle"></i>
+            Создать первую мысль
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="fixed-bottom d-flex justify-content-center mb-4">
+    <a class="btn btn-primary btn-lg shadow create-btn" href="{% url 'idea:idea_create' %}" role="button">
+        <i class="bi bi-plus-circle"></i>
+        Создать интересную мысль
+    </a>
+</div>
+
+<style>
+.btn-custom-beige {
+    background: linear-gradient(135deg, #a67c52, #c19a6b) !important;
+    border: 2px solid #8b5a2b !important;
+    color: #2c1d0e !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+
+.btn-custom-beige:hover {
+    background: linear-gradient(135deg, #8b5a2b, #a67c52) !important;
+    border-color: #6b4c2a !important;
+    color: #2c1d0e !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(139, 90, 43, 0.4) !important;
+}
+
+.badge-custom-beige {
+    background: linear-gradient(135deg, #a67c52, #c19a6b) !important;
+    color: #2c1d0e !important;
+    border: 2px solid #8b5a2b !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+}
+
+.border-custom-beige {
+    border-color: #a67c52 !important;
+}
+
+.border-custom-beige:focus {
+    border-color: #8b5a2b !important;
+    box-shadow: 0 0 0 0.3rem rgba(166, 124, 82, 0.25) !important;
+}
+.section-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.idea-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(139, 115, 85, 0.15);
+    transition: all 0.3s ease;
+    background: transparent;
+    height: 380px;
+}
+
+.idea-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(139, 115, 85, 0.25);
+}
+
+.idea-image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.idea-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.idea-no-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--beige-primary) 0%, var(--beige-dark) 100%);
+}
+
+.idea-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 30%,
+        rgba(0, 0, 0, 0.4) 60%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.75rem;
+    color: white;
+}
+
+.idea-content {
+    width: 100%;
+}
+
+.idea-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    line-height: 1.3;
+}
+
+.idea-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    opacity: 0.95;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.idea-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.idea-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+}
+
+.idea-meta-item i {
+    font-size: 0.9rem;
+    width: 16px;
+}
+
+.idea-meta-item small {
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.idea-actions .btn {
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid white;
+    color: var(--terracotta-primary);
+    transition: all 0.3s ease;
+}
+
+.idea-actions .btn:hover {
+    background: white;
+    color: var(--terracotta-dark);
+    transform: translateY(-2px);
+}
+
+.create-btn {
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--terracotta-primary) 0%, var(--terracotta-dark) 100%);
+    border: 2px solid var(--terracotta-primary);
+    box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+    transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+    background: linear-gradient(135deg, var(--terracotta-light) 0%, var(--terracotta-primary) 100%);
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+    background: var(--beige-lighter);
+    color: var(--text-dark);
+}
+
+/* Для карточек без фото */
+.idea-no-image + .idea-overlay {
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(139, 115, 85, 0.6) 50%,
+        rgba(107, 93, 77, 0.8) 100%
+    );
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .idea-card {
+        height: 350px;
+    }
+
+    .idea-overlay {
+        padding: 1.5rem;
+    }
+
+    .idea-title {
+        font-size: 1.2rem;
+    }
+
+    .create-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .idea-card {
+        height: 320px;
+    }
+
+    .idea-overlay {
+        padding: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.7rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .col-sm-6 {
+        margin-bottom: 1rem;
+    }
+
+    .create-btn {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+}
+</style>
 {% endblock %}

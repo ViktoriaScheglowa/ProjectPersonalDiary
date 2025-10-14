@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from celery.schedules import crontab
 
 from dotenv import load_dotenv
 
@@ -53,7 +54,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates'],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -130,8 +131,10 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static",]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -162,6 +165,10 @@ REDIS_URL = os.getenv("REDIS_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = False
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
@@ -171,6 +178,14 @@ CELERY_BEAT_SCHEDULE = {
     "send_reminder_with_bot": {
         "task": "habits.tasks.send_reminder_with_bot",
         "schedule": timedelta(days=1),
+    },
+    "check-habits-every-minute": {
+        "task": "habits.tasks.check_habits_for_notification",
+        "schedule": crontab(minute="*"),
+    },
+    "reset-notifications-daily": {
+        "task": "habits.tasks.reset_notification_status",
+        "schedule": crontab(hour=0, minute=0),
     },
 }
 
@@ -190,26 +205,26 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-LOGIN_URL = 'user:login'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = "user:login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 AUTHENTICATION_BACKENDS = [
-    'user.backends.EmailBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "user.backends.EmailBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]

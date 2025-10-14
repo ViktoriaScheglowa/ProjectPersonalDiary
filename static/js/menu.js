@@ -72,3 +72,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+// Исправление выпадающего меню
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.dropdown');
+
+    dropdowns.forEach(dropdown => {
+        const menu = dropdown.querySelector('.dropdown-menu');
+
+        if (menu) {
+            // Скрываем меню при загрузке
+            menu.style.opacity = '0';
+            menu.style.visibility = 'hidden';
+            menu.style.pointerEvents = 'none';
+
+            // Показываем при наведении
+            dropdown.addEventListener('mouseenter', function() {
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.pointerEvents = 'auto';
+                menu.style.transform = 'translateY(0)';
+            });
+
+            // Скрываем при уходе курсора
+            dropdown.addEventListener('mouseleave', function() {
+                menu.style.opacity = '0';
+                menu.style.visibility = 'hidden';
+                menu.style.pointerEvents = 'none';
+                menu.style.transform = 'translateY(-10px)';
+            });
+        }
+    });
+});

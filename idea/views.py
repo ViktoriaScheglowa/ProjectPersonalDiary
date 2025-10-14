@@ -1,6 +1,16 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import (
+    TemplateView,
+    DeleteView,
+    DetailView,
+    UpdateView,
+    CreateView,
+    ListView,
+)
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
@@ -13,9 +23,95 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from idea.forms import IdeaForm
 from idea.models import Myidea
 from idea.paginators import CustomPaginator
 from idea.serializers import IdeaSerializer, PublicListIdeaSerializer
+
+
+class IdeaListView(LoginRequiredMixin, ListView):
+    model = Myidea
+    template_name = "idea/my_idea_list.html"
+    context_object_name = "idea"
+    paginate_by = 5
+
+    def get_queryset(self):
+        queryset = Myidea.objects.filter(owner=self.request.user)
+        search_query = self.request.GET.get("search", "")
+        if search_query:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search_query)
+                | models.Q(comments__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        return context
+
+
+class PublicIdeaTemplateView(ListView):
+    model = Myidea
+    template_name = "idea/public_idea_list.html"
+    context_object_name = "ideas"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = Myidea.objects.filter(is_public=True)
+        search_query = self.request.GET.get("search", "")
+        if search_query:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search_query)
+                | models.Q(comments__icontains=search_query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search", "")
+        return context
+
+
+class IdeaCreateView(LoginRequiredMixin, CreateView):
+    model = Myidea
+    form_class = IdeaForm
+    template_name = "idea/idea_form.html"
+    success_url = reverse_lazy("idea:idea_list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+
+class IdeaUpdateView(LoginRequiredMixin, UpdateView):
+    model = Myidea
+    form_class = IdeaForm
+    template_name = "idea/idea_form.html"
+    success_url = reverse_lazy("idea:idea_list")
+
+    def get_queryset(self):
+        return Myidea.objects.filter(owner=self.request.user)
+
+
+class IdeaDetailView(LoginRequiredMixin, DetailView):
+    model = Myidea
+    template_name = "idea/idea_detail.html"
+    context_object_name = "idea"
+
+    def get_queryset(self):
+        return Myidea.objects.all()
+
+
+class IdeaDeleteView(LoginRequiredMixin, DeleteView):
+    model = Myidea
+    template_name = "idea/idea_confirm_delete.html"
+    success_url = reverse_lazy("idea:idea_list")
+
+    def get_queryset(self):
+        return Myidea.objects.filter(owner=self.request.user)
 
 
 @method_decorator(
@@ -55,14 +151,10 @@ class PublicIdeaListAPIView(ListAPIView):
     serializer_class = PublicListIdeaSerializer
     pagination_class = CustomPaginator
     permission_classes = (AllowAny,)
-    template_name = 'idea/public_idea_list.html'
+    template_name = "idea/public_idea_list.html"
 
     def get_queryset(self):
         return Myidea.objects.filter(is_public=True)
-
-
-class PublicIdeaTemplateView(TemplateView):
-    template_name = 'idea/public_idea_list.html'
 
 
 @method_decorator(

@@ -16,13 +16,13 @@ class Command(BaseCommand):
         #     managers_group.permissions.set(permissions)
 
         super_user = User.objects.create(
-            email='admin@admin.com',
-            first_name='Admin',
-            last_name='Adminexin',
+            email="admin@admin.com",
+            first_name="Admin",
+            last_name="Adminexin",
             is_staff=True,
             is_active=True,
-            is_superuser=True)
-        super_user.set_password('1234qwer')
+            is_superuser=True,
+        )
+        super_user.set_password("1234qwer")
         super_user.save()
-        self.stdout.write(
-            self.style.SUCCESS('✅ Суперпользователь успешно создан!'))
+        self.stdout.write(self.style.SUCCESS("✅ Суперпользователь успешно создан!"))
