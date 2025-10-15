@@ -13,7 +13,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['158.160.134.144', 'localhost', '127.0.0.1', '0.0.0.0']
+
 
 
 INSTALLED_APPS = [
@@ -35,10 +36,12 @@ INSTALLED_APPS = [
     "idea",
     "moments",
     "drf_yasg",
+    "personaldiary",
     "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -46,7 +49,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -158,7 +160,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://read-and-write.example.com",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 REDIS_URL = os.getenv("REDIS_URL")
 
@@ -206,6 +209,7 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
