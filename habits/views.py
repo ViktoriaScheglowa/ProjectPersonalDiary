@@ -64,20 +64,6 @@ class HabitCreateView(LoginRequiredMixin, CreateView):
     model = Habit
     form_class = HabitForm
     template_name = "habits/habits_form.html"
-    fields = [
-        "location",
-        "date_deadline",
-        "time_deadline",
-        "action",
-        "is_enjoyable",
-        "associated_habit",
-        "periodicity",
-        "reward",
-        "photo",
-        "video",
-        "time_to_complete",
-        "is_public",
-    ]
     success_url = reverse_lazy("habits:habits_list")
 
     def form_valid(self, form):

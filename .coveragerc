@@ -1,0 +1,21 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */management/commands/*
+    */tests/*
+    */__pycache__/*
+    */admin.py
+    */apps.py
+    manage.py
+    */test_*
+    */_test_*
+    */conftest.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __str__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
