@@ -46,6 +46,8 @@ class Habit(models.Model):
     is_enjoyable = models.BooleanField(
         verbose_name="Признак приятной привычки",
         help_text="Привычка, способ вознаградить себя за выполнение полезной привычки",
+        null=True,
+        blank=True,
     )
     associated_habit = models.ForeignKey(
         "Habit",
