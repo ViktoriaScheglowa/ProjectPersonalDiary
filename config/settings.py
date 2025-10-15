@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     "idea",
     "moments",
     "drf_yasg",
-    "personaldiary",
     "corsheaders",
 ]
 
