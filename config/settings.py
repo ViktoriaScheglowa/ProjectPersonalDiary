@@ -33,7 +33,9 @@ INSTALLED_APPS = [
     "goal",
     "habits",
     "idea",
+    "publications",
     "moments",
+    "telegram_bot",
     "drf_yasg",
     "corsheaders",
 ]
@@ -89,7 +91,7 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        'ENGINE': 'django.db.backends.postgresql',
         "NAME": os.getenv("NAME"),
         "USER": os.getenv("USER"),
         "PASSWORD": os.getenv("PASSWORD"),
@@ -201,7 +203,27 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_URL = "https://api.telegram.org/bot"
+# Основная группа
+MAIN_GROUP_ID = '-1003223799482'
 
+# ID тем для публичных записей
+TELEGRAM_PUBLIC_THREADS = {
+    'habits': 7,       # Тема "ритмы дня" - публичные привычки
+    'goals': 6,        # Тема "открытые планы" - публичные цели
+    'ideas': 5,        # Тема "мысли вслух" - публичные идеи
+    'moments': 4,      # Тема "фокус дня" - публичные моменты
+}
+
+# ID тем для приватных записей
+TELEGRAM_PRIVATE_THREADS = {
+    'habits': 11,      # Тема "мои привычки" - приватные привычки
+    'goals': 12,        # Тема "мои мысли" - приватные мысли
+    'ideas': 10,       # Тема "мои идеи" - приватные идеи
+    'moments': 9,      # Тема "мои моменты" - приватные моменты
+}
+
+# ID бота для отправки сообщений
+TELEGRAM_BOT_USERNAME = 'your_bot_username'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
