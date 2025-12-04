@@ -170,10 +170,10 @@ class Goal(models.Model):
         super().save(*args, **kwargs)
 
         # Работаем с публикациями после сохранения
-        if self.is_public and not self.public_post:
-            self.publish_to_feed()
-        elif not self.is_public and self.public_post:
-            self.remove_from_feed()
+        # if self.is_public and not self.public_post:
+        #     self.publish_to_feed()
+        # elif not self.is_public and self.public_post:
+        #     self.remove_from_feed()
 
     def publish_to_feed(self):
         """Публикация цели в общую ленту"""

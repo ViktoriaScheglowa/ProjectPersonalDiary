@@ -199,7 +199,7 @@ class TelegramBot:
             await update.message.reply_text("❌ Ошибка при создании привычки")
 
     async def create_goal(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Создание цели - УПРОЩЕННАЯ ВЕРСИЯ"""
+        """Создание цели """
         try:
             user = await self.get_django_user(update, context)
             if not user:
@@ -221,16 +221,15 @@ class TelegramBot:
                 from datetime import date
 
                 # Получаем дату на 30 дней вперед как date (не datetime)
-                deadline_date = date.today() + timezone.timedelta(days=30)
+                # deadline_date = date.today() + timezone.timedelta(days=30)
 
                 try:
-                    # Создаем цель без вызова save() (чтобы избежать валидации)
-                    goal = Goal(
+                    goal = Goal.objects.create(
                         owner=user,
                         title=title,
                         is_public=False,
                         is_active=True,
-                        date_deadline=deadline_date
+                        date_deadline=date.today() + timezone.timedelta(days=30)
                     )
 
                     # Сохраняем без вызова полного save()
@@ -242,7 +241,7 @@ class TelegramBot:
                     goal = Goal.objects.create(
                         owner=user,
                         title=title,
-                        is_public=True,
+                        is_public=False,
                         is_active=True
                     )
                     return goal
@@ -287,7 +286,7 @@ class TelegramBot:
                 return Myidea.objects.create(
                     owner=user,
                     title=title,
-                    is_public=True
+                    is_public=False
                 )
 
             idea = await create_idea_instance(user, title)
